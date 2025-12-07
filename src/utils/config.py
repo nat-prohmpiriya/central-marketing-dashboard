@@ -50,6 +50,33 @@ class Settings(BaseSettings):
 
     # LINE Ads API
     line_ads_access_token: str = Field(default="", description="LINE Ads Access Token")
+    line_ads_access_key: str = Field(default="", description="LINE Ads Access Key")
+    line_ads_secret_key: str = Field(default="", description="LINE Ads Secret Key")
+    line_ads_ad_account_id: str = Field(default="", description="LINE Ads Ad Account ID")
+
+    # Facebook Ads API
+    facebook_app_id: str = Field(default="", description="Facebook App ID")
+    facebook_app_secret: str = Field(default="", description="Facebook App Secret")
+    facebook_access_token: str = Field(default="", description="Facebook Access Token")
+    facebook_ad_account_id: str = Field(default="", description="Facebook Ad Account ID")
+
+    # Google Ads API
+    google_ads_developer_token: str = Field(default="", description="Google Ads Developer Token")
+    google_ads_client_id: str = Field(default="", description="Google Ads OAuth Client ID")
+    google_ads_client_secret: str = Field(default="", description="Google Ads OAuth Client Secret")
+    google_ads_refresh_token: str = Field(default="", description="Google Ads OAuth Refresh Token")
+    google_ads_customer_id: str = Field(default="", description="Google Ads Customer ID")
+    google_ads_login_customer_id: str = Field(default="", description="Google Ads Manager Account ID (optional)")
+
+    # TikTok Ads API
+    tiktok_ads_app_id: str = Field(default="", description="TikTok Ads App ID")
+    tiktok_ads_app_secret: str = Field(default="", description="TikTok Ads App Secret")
+    tiktok_ads_access_token: str = Field(default="", description="TikTok Ads Access Token")
+    tiktok_ads_advertiser_id: str = Field(default="", description="TikTok Ads Advertiser ID")
+
+    # GA4 (Google Analytics 4)
+    ga4_property_id: str = Field(default="", description="GA4 Property ID")
+    ga4_credentials_path: str = Field(default="", description="Path to GA4 service account JSON file")
 
     # Logging
     log_level: str = Field(default="INFO", description="Logging level")
@@ -110,6 +137,36 @@ DEFAULT_RATE_LIMITS = {
     },
     "line_ads": {
         "requests_per_minute": 60,
+        "retry_after_seconds": 60,
+        "max_retries": 3,
+    },
+    "facebook_ads": {
+        "requests_per_minute": 200,
+        "retry_after_seconds": 60,
+        "max_retries": 3,
+    },
+    "google_ads": {
+        "requests_per_minute": 100,
+        "retry_after_seconds": 60,
+        "max_retries": 3,
+    },
+    "tiktok_ads": {
+        "requests_per_minute": 100,
+        "retry_after_seconds": 60,
+        "max_retries": 3,
+    },
+    "ga4": {
+        "requests_per_minute": 60,
+        "retry_after_seconds": 60,
+        "max_retries": 3,
+    },
+    "shopee_ads": {
+        "requests_per_minute": 60,
+        "retry_after_seconds": 60,
+        "max_retries": 3,
+    },
+    "lazada_ads": {
+        "requests_per_minute": 50,
         "retry_after_seconds": 60,
         "max_retries": 3,
     },

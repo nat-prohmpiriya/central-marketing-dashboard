@@ -120,7 +120,7 @@
 
 ---
 
-### [ ]  1.2.2 Ads & Analytics Extractors (Python + Official SDKs)
+### [x]  1.2.2 Ads & Analytics Extractors (Python + Official SDKs)
 
 > **Note:** ใช้ Official SDKs จาก platform ต่างๆ แทน Airbyte
 > - Facebook Ads: `facebook-business`
@@ -153,27 +153,27 @@
 | A-021 | Lazada Ads extractor tests | Unit tests | `tests/test_extractors/test_lazada_ads.py` | - Mock API calls <br> - All tests pass |
 
 **Checklist:**
-- [ ] A-001: Facebook Ads authentication
-- [ ] A-002: Facebook Ads extractor
-- [ ] A-003: Facebook Ads extractor tests
-- [ ] A-004: Google Ads authentication
-- [ ] A-005: Google Ads extractor
-- [ ] A-006: Google Ads extractor tests
-- [ ] A-007: TikTok Ads authentication
-- [ ] A-008: TikTok Ads extractor
-- [ ] A-009: TikTok Ads extractor tests
-- [ ] A-010: GA4 authentication
-- [ ] A-011: GA4 extractor
-- [ ] A-012: GA4 extractor tests
-- [ ] A-013: LINE Ads authentication
-- [ ] A-014: LINE Ads extractor
-- [ ] A-015: LINE Ads extractor tests
-- [ ] A-016: Shopee Ads authentication
-- [ ] A-017: Shopee Ads extractor
-- [ ] A-018: Shopee Ads extractor tests
-- [ ] A-019: Lazada Ads authentication
-- [ ] A-020: Lazada Ads extractor
-- [ ] A-021: Lazada Ads extractor tests
+- [x] A-001: Facebook Ads authentication
+- [x] A-002: Facebook Ads extractor
+- [x] A-003: Facebook Ads extractor tests (23 tests)
+- [x] A-004: Google Ads authentication
+- [x] A-005: Google Ads extractor
+- [x] A-006: Google Ads extractor tests (21 tests)
+- [x] A-007: TikTok Ads authentication
+- [x] A-008: TikTok Ads extractor
+- [x] A-009: TikTok Ads extractor tests (21 tests)
+- [x] A-010: GA4 authentication
+- [x] A-011: GA4 extractor
+- [x] A-012: GA4 extractor tests (22 tests)
+- [x] A-013: LINE Ads authentication
+- [x] A-014: LINE Ads extractor
+- [x] A-015: LINE Ads extractor tests (21 tests)
+- [x] A-016: Shopee Ads authentication
+- [x] A-017: Shopee Ads extractor
+- [x] A-018: Shopee Ads extractor tests (15 tests)
+- [x] A-019: Lazada Ads authentication
+- [x] A-020: Lazada Ads extractor
+- [x] A-021: Lazada Ads extractor tests (17 tests)
 
 ---
 
