@@ -8,11 +8,17 @@ from src.loaders.base import (
     WriteError,
 )
 
-# Lazy import BigQueryLoader to avoid import errors when google.cloud is not installed
+# Lazy import BigQuery loaders to avoid import errors when google.cloud is not installed
 try:
-    from src.loaders.bigquery import BigQueryLoader
+    from src.loaders.bigquery import (
+        BigQueryLoader,
+        RawDataLoader,
+        StagingDataLoader,
+    )
 except ImportError:
     BigQueryLoader = None  # type: ignore[misc, assignment]
+    RawDataLoader = None  # type: ignore[misc, assignment]
+    StagingDataLoader = None  # type: ignore[misc, assignment]
 
 __all__ = [
     "BaseLoader",
@@ -21,4 +27,6 @@ __all__ = [
     "WriteError",
     "SchemaError",
     "BigQueryLoader",
+    "RawDataLoader",
+    "StagingDataLoader",
 ]
