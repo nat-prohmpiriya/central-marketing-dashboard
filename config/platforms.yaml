@@ -1,0 +1,112 @@
+# Platform Configuration
+# This file contains configuration for all connected platforms
+
+# E-commerce Platforms
+ecommerce:
+  shopee:
+    name: "Shopee"
+    base_url: "https://partner.shopeemobile.com"
+    api_version: "v2"
+    enabled: true
+
+  lazada:
+    name: "Lazada"
+    base_url: "https://api.lazada.co.th/rest"
+    enabled: true
+
+  tiktok_shop:
+    name: "TikTok Shop"
+    base_url: "https://open-api.tiktokglobalshop.com"
+    enabled: true
+
+# Advertising Platforms (Python extractors)
+ads:
+  line_ads:
+    name: "LINE Ads"
+    base_url: "https://ads.line.me/api"
+    enabled: true
+
+  shopee_ads:
+    name: "Shopee Ads"
+    # Uses same base_url as Shopee
+    enabled: true
+
+  lazada_ads:
+    name: "Lazada Sponsored Solutions"
+    # Uses same base_url as Lazada
+    enabled: true
+
+# Airbyte-managed platforms (not configured here)
+# - Facebook Ads
+# - Google Ads
+# - Google Analytics 4
+# - TikTok Ads (Marketing)
+
+# Rate Limits
+rate_limits:
+  shopee:
+    requests_per_minute: 60
+    retry_after_seconds: 60
+    max_retries: 3
+
+  lazada:
+    requests_per_minute: 50
+    retry_after_seconds: 60
+    max_retries: 3
+
+  tiktok_shop:
+    requests_per_minute: 100
+    retry_after_seconds: 60
+    max_retries: 3
+
+  line_ads:
+    requests_per_minute: 60
+    retry_after_seconds: 60
+    max_retries: 3
+
+# Order Status Mapping (normalize to unified status)
+order_status_mapping:
+  shopee:
+    UNPAID: "pending"
+    READY_TO_SHIP: "pending"
+    PROCESSED: "processing"
+    SHIPPED: "shipped"
+    COMPLETED: "completed"
+    IN_CANCEL: "cancelled"
+    CANCELLED: "cancelled"
+
+  lazada:
+    pending: "pending"
+    confirmed: "processing"
+    ready_to_ship: "processing"
+    shipped: "shipped"
+    delivered: "completed"
+    canceled: "cancelled"
+    returned: "refunded"
+
+  tiktok_shop:
+    UNPAID: "pending"
+    ON_HOLD: "pending"
+    AWAITING_SHIPMENT: "processing"
+    AWAITING_COLLECTION: "shipped"
+    IN_TRANSIT: "shipped"
+    DELIVERED: "completed"
+    COMPLETED: "completed"
+    CANCELLED: "cancelled"
+
+# Currency Settings
+currency:
+  default: "THB"
+  supported:
+    - THB
+    - USD
+    - SGD
+    - MYR
+    - IDR
+    - VND
+    - PHP
+
+# Timezone Settings
+timezone:
+  default: "Asia/Bangkok"
+  display: "Asia/Bangkok"
