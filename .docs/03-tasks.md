@@ -476,6 +476,32 @@
 
 ---
 
+### 1.6.6 Demo Data (for Pitch/Testing)
+
+> **Purpose:** สร้าง realistic demo data เพื่อใช้ในการ pitch และทดสอบระบบโดยไม่ต้องมี data จริง
+> **Timing:** ทำหลังจาก Dashboard structure พร้อมแล้ว เพื่อให้มี schema และ visualization รองรับ
+
+| Task ID | Task Name | Description | Technical Context | Acceptance Criteria |
+|---------|-----------|-------------|-------------------|---------------------|
+| DEMO-001 | Create data generator framework | สร้าง base framework สำหรับ generate fake data | `scripts/demo_data/generator.py` | - Configurable date ranges <br> - Reproducible with seed |
+| DEMO-002 | Generate e-commerce orders | สร้าง fake orders สำหรับ Shopee, Lazada, TikTok Shop | `scripts/demo_data/ecommerce.py` | - 10,000+ orders <br> - Realistic patterns (weekday/weekend, seasonal) <br> - Multiple shops |
+| DEMO-003 | Generate ads performance data | สร้าง fake ads data สำหรับ Facebook, Google, TikTok, LINE | `scripts/demo_data/ads.py` | - 90 days of data <br> - Realistic metrics (CTR 1-3%, ROAS 1-5) <br> - Multiple campaigns |
+| DEMO-004 | Generate GA4 analytics data | สร้าง fake GA4 sessions และ events | `scripts/demo_data/ga4.py` | - Sessions, pageviews, conversions <br> - Traffic sources breakdown |
+| DEMO-005 | Generate product catalog | สร้าง fake product catalog พร้อม SKU mapping | `scripts/demo_data/products.py` | - 100+ products <br> - Cross-platform SKU mapping |
+| DEMO-006 | Create data loader script | Script สำหรับ load demo data เข้า BigQuery | `scripts/demo_data/load_to_bigquery.py` | - Load to raw/staging layer <br> - Trigger mart refresh |
+| DEMO-007 | Create demo data documentation | Document วิธีใช้และ customize demo data | `scripts/demo_data/README.md` | - Usage instructions <br> - Customization guide |
+
+**Checklist:**
+- [ ] DEMO-001: Create data generator framework
+- [ ] DEMO-002: Generate e-commerce orders
+- [ ] DEMO-003: Generate ads performance data
+- [ ] DEMO-004: Generate GA4 analytics data
+- [ ] DEMO-005: Generate product catalog
+- [ ] DEMO-006: Create data loader script
+- [ ] DEMO-007: Create demo data documentation
+
+---
+
 ## Phase 1.7: Testing & Documentation (MVP)
 
 > **Scope Reduction:** เน้น critical path testing, ลด comprehensive testing ไป Phase 2
@@ -543,18 +569,17 @@
 | 1.3 Transformers & Loaders (incl. GA4) | 25 | 0 | Pending |
 | 1.4 Pipelines & Mart & Simple Alerts | 14 | 4 (AI/ML) | Pending |
 | 1.5 Cloud Deployment & Logging | 7 | 4 (Monitoring) | Pending |
-| 1.6 Dashboard (5 pages MVP) | 11 | 7 (Deep Dive) | Pending |
+| 1.6 Dashboard (5 pages MVP + Demo Data) | 18 | 7 (Deep Dive) | Pending |
 | 1.7 Testing & Documentation | 5 | 6 (Comprehensive) | Pending |
-| **Total MVP** | **111** | - | **Pending** |
+| **Total MVP** | **118** | - | **Pending** |
 | **Total Phase 2** | - | **21** | **Future** |
 
-> **Scope Reduction Summary:**
-> - Tasks ลดลงจาก 126 → **111 tasks** (MVP)
-> - Dashboard: 9 → 5 หน้า
-> - AI/ML: Statistical models → Rule-based (3 tasks แทน 5)
-> - Monitoring: Automated → Manual (1 task แทน 4)
-> - Testing: 100% coverage → Critical paths (2 tasks แทน 4)
-> - Documentation: Full → Essential (3 tasks แทน 5)
+> **Scope Summary:**
+> - Total MVP tasks: **118 tasks**
+> - Demo Data: +7 tasks (for pitch without real data)
+> - Dashboard: 5 หน้า (MVP)
+> - AI/ML: Rule-based alerts (MVP), ML models in Phase 2
+> - Monitoring: Manual (MVP), Automated in Phase 2
 
 ### Priority Order
 
@@ -590,3 +615,4 @@
 | 1.1 | Dec 2025 | - | Added Airbyte setup tasks, GA4 transformers, GA4 dashboard page |
 | 1.2 | Dec 2025 | - | TikTok Ads moved to Airbyte (AB-006), removed Python TikTok Ads tasks (A-011 to A-014), reduced total to 126 tasks |
 | 1.3 | Dec 2025 | - | **MVP Scope Reduction:** 126 → 111 tasks, Dashboard 9→5, ML→Rule-based, ย้าย Monitoring/Deep Dive/AI ไป Phase 2 |
+| 1.4 | Dec 2025 | - | **Added Demo Data:** +7 tasks (DEMO-001 to DEMO-007) for pitch/testing without real data, total 118 tasks |
