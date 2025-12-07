@@ -78,9 +78,17 @@ class BigQueryLoader:
         print("Loading shops...")
         results["shops"] = self.load_data(data["shops"], "staging", "stg_shops")
 
-        # Load products
+        # Load products - add required columns for mart
         print("Loading products...")
-        results["products"] = self.load_data(data["products"], "staging", "stg_products")
+        products_data = []
+        for product in data["products"]:
+            product_copy = product.copy()
+            product_copy["last_seen_at"] = datetime.now().isoformat()
+            product_copy["unit_price"] = product["price"]
+            product_copy["is_active"] = True
+            product_copy["brand"] = "Demo Brand"
+            products_data.append(product_copy)
+        results["products"] = self.load_data(products_data, "staging", "stg_products")
 
         # Load orders - add item_count for mart compatibility
         print("Loading orders...")
@@ -107,6 +115,7 @@ class BigQueryLoader:
             item_copy["item_id"] = item["order_item_id"]
             item_copy["name"] = item["product_name"]
             item_copy["total_price"] = item["subtotal"]
+            item_copy["variation"] = "Default"
             order_items_data.append(item_copy)
         results["order_items"] = self.load_data(order_items_data, "staging", "stg_order_items")
 
