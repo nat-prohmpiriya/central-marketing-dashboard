@@ -1,5 +1,12 @@
 """Transformers package for data transformation."""
 
+from src.transformers.ads import (
+    FacebookAdsTransformer,
+    GoogleAdsTransformer,
+    TikTokAdsTransformer,
+    UnifiedAd,
+    UnifiedAdsTransformer,
+)
 from src.transformers.base import (
     BaseTransformer,
     MappingError,
@@ -28,4 +35,10 @@ __all__ = [
     "OrderItemTransformer",
     "UnifiedOrder",
     "OrderItem",
+    # Ads
+    "FacebookAdsTransformer",
+    "GoogleAdsTransformer",
+    "TikTokAdsTransformer",
+    "UnifiedAdsTransformer",
+    "UnifiedAd",
 ]
