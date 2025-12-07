@@ -476,7 +476,7 @@
 
 ---
 
-### [ ]  1.6.6 Demo Data (for Pitch/Testing)
+### [x]  1.6.6 Demo Data (for Pitch/Testing)
 
 > **Purpose:** สร้าง realistic demo data เพื่อใช้ในการ pitch และทดสอบระบบโดยไม่ต้องมี data จริง
 > **Timing:** ทำหลังจาก Dashboard structure พร้อมแล้ว เพื่อให้มี schema และ visualization รองรับ
@@ -492,13 +492,13 @@
 | DEMO-007 | Create demo data documentation | Document วิธีใช้และ customize demo data | `scripts/demo_data/README.md` | - Usage instructions <br> - Customization guide |
 
 **Checklist:**
-- [ ] DEMO-001: Create data generator framework
-- [ ] DEMO-002: Generate e-commerce orders
-- [ ] DEMO-003: Generate ads performance data
-- [ ] DEMO-004: Generate GA4 analytics data
-- [ ] DEMO-005: Generate product catalog
-- [ ] DEMO-006: Create data loader script
-- [ ] DEMO-007: Create demo data documentation
+- [x] DEMO-001: Create data generator framework
+- [x] DEMO-002: Generate e-commerce orders
+- [x] DEMO-003: Generate ads performance data
+- [x] DEMO-004: Generate GA4 analytics data
+- [x] DEMO-005: Generate product catalog
+- [x] DEMO-006: Create data loader script
+- [x] DEMO-007: Create demo data documentation
 
 ---
 
