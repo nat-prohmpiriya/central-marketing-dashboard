@@ -1,0 +1,124 @@
+# Cloud Scheduler Configuration
+# This file documents the Cloud Scheduler jobs to be created
+# Use deploy_functions.sh to deploy, then create schedulers via gcloud or GCP Console
+
+schedulers:
+  # E-commerce ETL - Every 6 hours
+  - name: etl-ecommerce-scheduler
+    description: "Trigger E-commerce ETL pipeline every 6 hours"
+    schedule: "0 */6 * * *"  # At minute 0 of every 6th hour
+    timezone: "Asia/Bangkok"
+    target_type: http
+    uri: "${ECOMMERCE_FUNCTION_URL}"
+    http_method: POST
+    body:
+      days_back: 7
+      platforms:
+        - shopee
+        - lazada
+        - tiktok_shop
+    oidc_service_account: "${SERVICE_ACCOUNT_EMAIL}"
+    retry_config:
+      retry_count: 3
+      min_backoff_duration: "5s"
+      max_backoff_duration: "1h"
+
+  # Ads ETL - Every 6 hours
+  - name: etl-ads-scheduler
+    description: "Trigger Ads ETL pipeline every 6 hours"
+    schedule: "30 */6 * * *"  # At minute 30 of every 6th hour (offset from ecommerce)
+    timezone: "Asia/Bangkok"
+    target_type: http
+    uri: "${ADS_FUNCTION_URL}"
+    http_method: POST
+    body:
+      days_back: 7
+      platforms:
+        - facebook_ads
+        - google_ads
+        - tiktok_ads
+        - line_ads
+        - shopee_ads
+        - lazada_ads
+      include_ga4: true
+    oidc_service_account: "${SERVICE_ACCOUNT_EMAIL}"
+    retry_config:
+      retry_count: 3
+      min_backoff_duration: "5s"
+      max_backoff_duration: "1h"
+
+  # Mart ETL - After ETL pipelines (every 6 hours, 1 hour after ETL)
+  - name: etl-mart-scheduler
+    description: "Trigger Mart refresh after ETL pipelines complete"
+    schedule: "0 1,7,13,19 * * *"  # At 01:00, 07:00, 13:00, 19:00 (1 hour after ETL)
+    timezone: "Asia/Bangkok"
+    target_type: http
+    uri: "${MART_FUNCTION_URL}"
+    http_method: POST
+    body:
+      parallel: false
+      force: false
+    oidc_service_account: "${SERVICE_ACCOUNT_EMAIL}"
+    retry_config:
+      retry_count: 3
+      min_backoff_duration: "5s"
+      max_backoff_duration: "1h"
+
+  # Alerts ETL - Daily at 7 AM
+  - name: etl-alerts-scheduler
+    description: "Trigger Alerts generation daily at 7 AM"
+    schedule: "0 7 * * *"  # At 07:00 every day
+    timezone: "Asia/Bangkok"
+    target_type: http
+    uri: "${ALERTS_FUNCTION_URL}"
+    http_method: POST
+    body:
+      run_sql: true
+      run_python_rules: false
+    oidc_service_account: "${SERVICE_ACCOUNT_EMAIL}"
+    retry_config:
+      retry_count: 2
+      min_backoff_duration: "10s"
+      max_backoff_duration: "30m"
+
+# Example gcloud commands to create schedulers:
+#
+# gcloud scheduler jobs create http etl-ecommerce-scheduler \
+#   --location=asia-southeast1 \
+#   --schedule="0 */6 * * *" \
+#   --time-zone="Asia/Bangkok" \
+#   --uri="${ECOMMERCE_FUNCTION_URL}" \
+#   --http-method=POST \
+#   --message-body='{"days_back": 7, "platforms": ["shopee", "lazada", "tiktok_shop"]}' \
+#   --oidc-service-account-email="${SERVICE_ACCOUNT_EMAIL}" \
+#   --headers="Content-Type=application/json"
+#
+# gcloud scheduler jobs create http etl-ads-scheduler \
+#   --location=asia-southeast1 \
+#   --schedule="30 */6 * * *" \
+#   --time-zone="Asia/Bangkok" \
+#   --uri="${ADS_FUNCTION_URL}" \
+#   --http-method=POST \
+#   --message-body='{"days_back": 7, "include_ga4": true}' \
+#   --oidc-service-account-email="${SERVICE_ACCOUNT_EMAIL}" \
+#   --headers="Content-Type=application/json"
+#
+# gcloud scheduler jobs create http etl-mart-scheduler \
+#   --location=asia-southeast1 \
+#   --schedule="0 1,7,13,19 * * *" \
+#   --time-zone="Asia/Bangkok" \
+#   --uri="${MART_FUNCTION_URL}" \
+#   --http-method=POST \
+#   --message-body='{"parallel": false}' \
+#   --oidc-service-account-email="${SERVICE_ACCOUNT_EMAIL}" \
+#   --headers="Content-Type=application/json"
+#
+# gcloud scheduler jobs create http etl-alerts-scheduler \
+#   --location=asia-southeast1 \
+#   --schedule="0 7 * * *" \
+#   --time-zone="Asia/Bangkok" \
+#   --uri="${ALERTS_FUNCTION_URL}" \
+#   --http-method=POST \
+#   --message-body='{"run_sql": true}' \
+#   --oidc-service-account-email="${SERVICE_ACCOUNT_EMAIL}" \
+#   --headers="Content-Type=application/json"
