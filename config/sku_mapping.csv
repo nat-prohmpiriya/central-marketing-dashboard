@@ -1,0 +1,10 @@
+master_sku,platform,platform_sku,product_name,variation,notes
+PROD-001,shopee,SP-12345-M,Example Product,Size M,Main product - Shopee
+PROD-001,lazada,LZ-12345-M,Example Product,Size M,Main product - Lazada
+PROD-001,tiktok_shop,TT-12345-M,Example Product,Size M,Main product - TikTok
+PROD-001-L,shopee,SP-12345-L,Example Product,Size L,Size variant
+PROD-001-L,lazada,LZ-12345-L,Example Product,Size L,Size variant
+PROD-001-L,tiktok_shop,TT-12345-L,Example Product,Size L,Size variant
+PROD-002,shopee,SP-67890,Another Product,,Single variant
+PROD-002,lazada,LZ-67890,Another Product,,
+PROD-002,tiktok_shop,TT-67890,Another Product,,

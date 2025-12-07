@@ -30,6 +30,18 @@ from src.transformers.orders import (
     UnifiedOrder,
     UnifiedOrderTransformer,
 )
+from src.transformers.products import (
+    LazadaProductTransformer,
+    ShopeeProductTransformer,
+    TikTokProductTransformer,
+    UnifiedProduct,
+    UnifiedProductTransformer,
+)
+from src.transformers.sku_mapper import (
+    SKUMapper,
+    SKUMapping,
+    SKUMappingNotFoundError,
+)
 
 __all__ = [
     # Base
@@ -58,4 +70,14 @@ __all__ = [
     "GA4Session",
     "GA4Traffic",
     "GA4Page",
+    # Products
+    "ShopeeProductTransformer",
+    "LazadaProductTransformer",
+    "TikTokProductTransformer",
+    "UnifiedProductTransformer",
+    "UnifiedProduct",
+    # SKU Mapper
+    "SKUMapper",
+    "SKUMapping",
+    "SKUMappingNotFoundError",
 ]
