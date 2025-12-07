@@ -30,6 +30,7 @@ from typing import Any
 
 from src.pipelines import AdsPipeline, EcommercePipeline, ProductPipeline
 from src.pipelines.base import PipelineResult
+from src.pipelines.mart_pipeline import MartPipeline, MartPipelineResult, MartTable
 from src.utils.logging import get_logger
 
 logger = get_logger("main")
@@ -278,6 +279,40 @@ def run_all_pipelines(
     return results
 
 
+def run_mart_pipeline(
+    tables: str | None = None,
+    continue_on_error: bool = True,
+) -> MartPipelineResult:
+    """Run mart layer refresh pipeline.
+
+    Args:
+        tables: Comma-separated list of table names.
+        continue_on_error: Continue processing on table failure.
+
+    Returns:
+        MartPipelineResult with execution details.
+    """
+    logger.info(
+        "Running mart pipeline",
+        tables=tables,
+        continue_on_error=continue_on_error,
+    )
+
+    # Parse tables
+    mart_tables = None
+    if tables:
+        mart_tables = []
+        for t in tables.split(","):
+            t = t.strip()
+            try:
+                mart_tables.append(MartTable(t))
+            except ValueError:
+                logger.warning(f"Unknown mart table: {t}")
+
+    pipeline = MartPipeline(tables=mart_tables)
+    return pipeline.run(continue_on_error=continue_on_error)
+
+
 def print_result(result: PipelineResult) -> None:
     """Print pipeline result summary.
 
@@ -306,6 +341,38 @@ def print_result(result: PipelineResult) -> None:
         print(f"\nMetadata:")
         for key, value in result.metadata.items():
             print(f"  {key}: {value}")
+
+    print("=" * 50)
+
+
+def print_mart_result(result: MartPipelineResult) -> None:
+    """Print mart pipeline result summary.
+
+    Args:
+        result: MartPipelineResult to print.
+    """
+    status = "SUCCESS" if result.success else "FAILED"
+    print(f"\n{'=' * 50}")
+    print(f"Mart Pipeline: {status}")
+    print(f"Duration: {result.duration_seconds:.2f}s" if result.duration_seconds else "Duration: N/A")
+    print(f"Tables processed: {result.total_tables}")
+    print(f"Tables succeeded: {len(result.tables_refreshed)}")
+    print(f"Tables failed: {len(result.tables_failed)}")
+    print(f"Tables skipped: {len(result.tables_skipped)}")
+    print(f"Total rows affected: {result.total_rows_affected}")
+
+    if result.tables_refreshed:
+        print(f"\nRefreshed tables:")
+        for r in result.tables_refreshed:
+            print(f"  - {r.table.value}: {r.rows_affected} rows ({r.duration_seconds:.2f}s)")
+
+    if result.tables_failed:
+        print(f"\nFailed tables:")
+        for r in result.tables_failed:
+            print(f"  - {r.table.value}: {r.error}")
+
+    if result.tables_skipped:
+        print(f"\nSkipped tables: {', '.join(result.tables_skipped)}")
 
     print("=" * 50)
 
@@ -400,6 +467,19 @@ def main() -> int:
     # All command
     all_parser = subparsers.add_parser("all", help="Run all pipelines")
 
+    # Mart command
+    mart_parser = subparsers.add_parser("mart", help="Run mart layer refresh")
+    mart_parser.add_argument(
+        "--tables",
+        type=str,
+        help="Comma-separated list of mart tables to refresh (default: all)",
+    )
+    mart_parser.add_argument(
+        "--stop-on-error",
+        action="store_true",
+        help="Stop on first table refresh failure",
+    )
+
     args = parser.parse_args()
 
     if not args.command:
@@ -488,6 +568,14 @@ def main() -> int:
             print("=" * 50)
 
             return 0 if all_success else 1
+
+        elif args.command == "mart":
+            result = run_mart_pipeline(
+                tables=args.tables,
+                continue_on_error=not getattr(args, "stop_on_error", False),
+            )
+            print_mart_result(result)
+            return 0 if result.success else 1
 
     except KeyboardInterrupt:
         logger.info("Pipeline interrupted by user")

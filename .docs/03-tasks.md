@@ -179,7 +179,7 @@
 
 ## [ ] Phase 1.3: Transformers & Loaders (Week 5-6)
 
-### [ ]  1.3.1 Order Transformers
+### [x]  1.3.1 Order Transformers
 
 | Task ID | Task Name | Description | Technical Context | Acceptance Criteria |
 |---------|-----------|-------------|-------------------|---------------------|
@@ -191,12 +191,12 @@
 | T-006 | Order transformer tests | Unit tests | `tests/test_transformers/test_orders.py` | - All tests pass |
 
 **Checklist:**
-- [ ] T-001: Shopee order transformer
-- [ ] T-002: Lazada order transformer
-- [ ] T-003: TikTok order transformer
-- [ ] T-004: Unified order transformer
-- [ ] T-005: Order item transformer
-- [ ] T-006: Order transformer tests
+- [x] T-001: Shopee order transformer
+- [x] T-002: Lazada order transformer
+- [x] T-003: TikTok order transformer
+- [x] T-004: Unified order transformer
+- [x] T-005: Order item transformer
+- [x] T-006: Order transformer tests
 
 ---
 
@@ -211,15 +211,15 @@
 | T-011 | Ads transformer tests | Unit tests | `tests/test_transformers/test_ads.py` | - All tests pass |
 
 **Checklist:**
-- [ ] T-007: Facebook Ads transformer
-- [ ] T-008: Google Ads transformer
-- [ ] T-009: TikTok Ads transformer
-- [ ] T-010: Unified ads transformer
-- [ ] T-011: Ads transformer tests
+- [x] T-007: Facebook Ads transformer
+- [x] T-008: Google Ads transformer
+- [x] T-009: TikTok Ads transformer
+- [x] T-010: Unified ads transformer
+- [x] T-011: Ads transformer tests
 
 ---
 
-### [ ]  1.3.3 GA4 Transformers
+### [x]  1.3.3 GA4 Transformers
 
 | Task ID | Task Name | Description | Technical Context | Acceptance Criteria |
 |---------|-----------|-------------|-------------------|---------------------|
@@ -229,14 +229,14 @@
 | T-015 | GA4 transformer tests | Unit tests | `tests/test_transformers/test_ga4.py` | - All tests pass |
 
 **Checklist:**
-- [ ] T-012: GA4 sessions transformer
-- [ ] T-013: GA4 traffic transformer
-- [ ] T-014: GA4 pages transformer
-- [ ] T-015: GA4 transformer tests
+- [x] T-012: GA4 sessions transformer
+- [x] T-013: GA4 traffic transformer
+- [x] T-014: GA4 pages transformer
+- [x] T-015: GA4 transformer tests
 
 ---
 
-### [ ]  1.3.4 Product & SKU Mapping
+### [x]  1.3.4 Product & SKU Mapping
 
 | Task ID | Task Name | Description | Technical Context | Acceptance Criteria |
 |---------|-----------|-------------|-------------------|---------------------|
@@ -246,14 +246,14 @@
 | T-019 | Product transformer tests | Unit tests | `tests/test_transformers/test_products.py` | - All tests pass |
 
 **Checklist:**
-- [ ] T-016: Product transformer
-- [ ] T-017: SKU mapper
-- [ ] T-018: SKU mapping CSV template
-- [ ] T-019: Product transformer tests
+- [x] T-016: Product transformer
+- [x] T-017: SKU mapper
+- [x] T-018: SKU mapping CSV template
+- [x] T-019: Product transformer tests
 
 ---
 
-### [ ]  1.3.5 BigQuery Schemas & Loading
+### [x]  1.3.5 BigQuery Schemas & Loading
 
 | Task ID | Task Name | Description | Technical Context | Acceptance Criteria |
 |---------|-----------|-------------|-------------------|---------------------|
@@ -265,18 +265,18 @@
 | L-006 | Loader tests | Unit tests | `tests/test_loaders/test_bigquery.py` | - All tests pass |
 
 **Checklist:**
-- [ ] L-001: Create raw layer schemas
-- [ ] L-002: Create staging layer schemas
-- [ ] L-003: Create mart layer schemas
-- [ ] L-004: Implement raw data loader
-- [ ] L-005: Implement staging data loader
-- [ ] L-006: Loader tests
+- [x] L-001: Create raw layer schemas
+- [x] L-002: Create staging layer schemas
+- [x] L-003: Create mart layer schemas
+- [x] L-004: Implement raw data loader
+- [x] L-005: Implement staging data loader
+- [x] L-006: Loader tests
 
 ---
 
 ## [ ] Phase 1.4: Pipelines & Mart Layer (Week 7-8)
 
-### [ ]  1.4.1 ETL Pipelines
+### [x]  1.4.1 ETL Pipelines
 
 | Task ID | Task Name | Description | Technical Context | Acceptance Criteria |
 |---------|-----------|-------------|-------------------|---------------------|
@@ -287,15 +287,15 @@
 | P-005 | Pipeline tests | Integration tests | `tests/test_pipelines/` | - End-to-end test with mocks |
 
 **Checklist:**
-- [ ] P-001: E-commerce pipeline
-- [ ] P-002: Ads pipeline
-- [ ] P-003: Product pipeline
-- [ ] P-004: Main entry point
-- [ ] P-005: Pipeline tests
+- [x] P-001: E-commerce pipeline
+- [x] P-002: Ads pipeline
+- [x] P-003: Product pipeline
+- [x] P-004: Main entry point
+- [x] P-005: Pipeline tests
 
 ---
 
-### [ ]  1.4.2 Mart Layer SQL
+### [x]  1.4.2 Mart Layer SQL
 
 | Task ID | Task Name | Description | Technical Context | Acceptance Criteria |
 |---------|-----------|-------------|-------------------|---------------------|
@@ -307,12 +307,12 @@
 | M-006 | Mart pipeline | Pipeline to refresh mart layer | `src/pipelines/mart_pipeline.py` | - Run all mart SQL <br> - Handle dependencies |
 
 **Checklist:**
-- [ ] M-001: Daily performance mart
-- [ ] M-002: Shop performance mart
-- [ ] M-003: Ads channel performance mart
-- [ ] M-004: Campaign performance mart
-- [ ] M-005: Product performance mart
-- [ ] M-006: Mart pipeline
+- [x] M-001: Daily performance mart
+- [x] M-002: Shop performance mart
+- [x] M-003: Ads channel performance mart
+- [x] M-004: Campaign performance mart
+- [x] M-005: Product performance mart
+- [x] M-006: Mart pipeline
 
 ---
 

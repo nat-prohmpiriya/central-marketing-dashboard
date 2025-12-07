@@ -23,6 +23,30 @@ try:
 except ImportError:
     ProductPipeline = None  # type: ignore[misc, assignment]
 
+try:
+    from src.pipelines.mart_pipeline import (
+        MartPipeline,
+        MartPipelineResult,
+        MartRefreshResult,
+        MartTable,
+    )
+except ImportError:
+    MartPipeline = None  # type: ignore[misc, assignment]
+    MartPipelineResult = None  # type: ignore[misc, assignment]
+    MartRefreshResult = None  # type: ignore[misc, assignment]
+    MartTable = None  # type: ignore[misc, assignment]
+
+try:
+    from src.pipelines.alerts_pipeline import (
+        AlertsPipeline,
+        AlertsPipelineResult,
+        AlertsRefreshResult,
+    )
+except ImportError:
+    AlertsPipeline = None  # type: ignore[misc, assignment]
+    AlertsPipelineResult = None  # type: ignore[misc, assignment]
+    AlertsRefreshResult = None  # type: ignore[misc, assignment]
+
 __all__ = [
     "BasePipeline",
     "PipelineError",
@@ -31,4 +55,11 @@ __all__ = [
     "EcommercePipeline",
     "AdsPipeline",
     "ProductPipeline",
+    "MartPipeline",
+    "MartPipelineResult",
+    "MartRefreshResult",
+    "MartTable",
+    "AlertsPipeline",
+    "AlertsPipelineResult",
+    "AlertsRefreshResult",
 ]
