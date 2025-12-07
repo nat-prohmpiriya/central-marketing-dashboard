@@ -87,3 +87,16 @@ cd scripts/setup_gcloud
    ```
 
 3. ไปต่อที่ Airbyte setup หรือ Base Classes
+
+## DEMO data
+
+   ```bash 
+   # Load ทั้งหมด 90 วัน
+   uv run python scripts/demo_data/load_to_bigquery.py
+
+   # Load แค่ 30 วัน
+   uv run python scripts/demo_data/load_to_bigquery.py --days 30
+
+   # Load เฉพาะ e-commerce
+   uv run python scripts/demo_data/load_to_bigquery.py --type ecommerce
+   ```

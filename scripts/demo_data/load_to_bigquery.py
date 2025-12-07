@@ -39,10 +39,14 @@ class BigQueryLoader:
         table_ref = f"{self.project_id}.{dataset}.{table}"
 
         # Add metadata
-        loaded_at = datetime.utcnow().isoformat()
+        loaded_at = datetime.now().isoformat()
         for record in data:
             record["_loaded_at"] = loaded_at
             record["_source"] = "demo_data"
+            # Convert datetime objects to strings
+            for key, value in record.items():
+                if isinstance(value, datetime):
+                    record[key] = value.isoformat()
 
         job_config = bigquery.LoadJobConfig(
             write_disposition=write_disposition,
