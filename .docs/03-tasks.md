@@ -18,9 +18,9 @@
 
 ---
 
-## Phase 1.1: Foundation (Week 1-2)
+## [🔄] Phase 1.1: Foundation (Week 1-2)
 
-### 1.1.1 Project Setup
+### [x]  1.1.1 Project Setup
 
 | Task ID | Task Name | Description | Technical Context | Acceptance Criteria |
 |---------|-----------|-------------|-------------------|---------------------|
@@ -32,16 +32,16 @@
 | F-006 | Create .env template | สร้าง template สำหรับ environment variables | `.env.example` | - มีทุก variables ที่จำเป็น <br> - มี comments อธิบาย |
 
 **Checklist:**
-- [ ] F-001: Initialize Python project
-- [ ] F-002: Setup Git repository
-- [ ] F-003: Create folder structure
-- [ ] F-004: Setup configuration management
-- [ ] F-005: Setup logging
-- [ ] F-006: Create .env template
+- [x] F-001: Initialize Python project
+- [x] F-002: Setup Git repository
+- [x] F-003: Create folder structure
+- [x] F-004: Setup configuration management
+- [x] F-005: Setup logging
+- [x] F-006: Create .env template
 
 ---
 
-### 1.1.2 GCP Setup
+### [x]  1.1.2 GCP Setup
 
 | Task ID | Task Name | Description | Technical Context | Acceptance Criteria |
 |---------|-----------|-------------|-------------------|---------------------|
@@ -54,17 +54,17 @@
 | G-007 | Create setup script | Script สำหรับ initialize BigQuery | `scripts/setup_bigquery.py` | - Script runs without error <br> - Creates all datasets and tables |
 
 **Checklist:**
-- [ ] G-001: Create GCP project
-- [ ] G-002: Enable required APIs
-- [ ] G-003: Create service account
-- [ ] G-004: Setup BigQuery datasets
-- [ ] G-005: Setup Secret Manager
-- [ ] G-006: Create GCS staging bucket
-- [ ] G-007: Create setup script
+- [x] G-001: Create GCP project (script: `01-create-project.sh`)
+- [x] G-002: Enable required APIs (script: `02-enable-apis.sh`)
+- [x] G-003: Create service account (script: `03-create-service-account.sh`)
+- [x] G-004: Setup BigQuery datasets (script: `04-setup-bigquery.sh`)
+- [x] G-005: Setup Secret Manager (script: `05-setup-secret-manager.sh`)
+- [x] G-006: Create GCS staging bucket (script: `06-create-gcs-bucket.sh`)
+- [x] G-007: Create setup script (all scripts in `scripts/setup_gcloud/`)
 
 ---
 
-### 1.1.3 Airbyte Setup
+### [ ]  1.1.3 Airbyte Setup
 
 | Task ID | Task Name | Description | Technical Context | Acceptance Criteria |
 |---------|-----------|-------------|-------------------|---------------------|
@@ -91,7 +91,7 @@
 
 ---
 
-### 1.1.4 Base Classes
+### [ ]  1.1.4 Base Classes
 
 | Task ID | Task Name | Description | Technical Context | Acceptance Criteria |
 |---------|-----------|-------------|-------------------|---------------------|
@@ -112,9 +112,9 @@
 
 ---
 
-## Phase 1.2: Extractors (Week 3-4)
+## [ ] Phase 1.2: Extractors (Week 3-4)
 
-### 1.2.1 E-commerce Extractors
+### [ ]  1.2.1 E-commerce Extractors
 
 | Task ID | Task Name | Description | Technical Context | Acceptance Criteria |
 |---------|-----------|-------------|-------------------|---------------------|
@@ -147,7 +147,7 @@
 
 ---
 
-### 1.2.2 Ads Extractors (Python - platforms without Airbyte)
+### [ ]  1.2.2 Ads Extractors (Python - platforms without Airbyte)
 
 > **Note:** Facebook Ads, Google Ads, GA4, และ **TikTok Ads** ใช้ Airbyte แทน (ดู Section 1.1.3)
 > ส่วนนี้เหลือแค่ platforms ที่ไม่มี Airbyte connector
@@ -177,9 +177,9 @@
 
 ---
 
-## Phase 1.3: Transformers & Loaders (Week 5-6)
+## [ ] Phase 1.3: Transformers & Loaders (Week 5-6)
 
-### 1.3.1 Order Transformers
+### [ ]  1.3.1 Order Transformers
 
 | Task ID | Task Name | Description | Technical Context | Acceptance Criteria |
 |---------|-----------|-------------|-------------------|---------------------|
@@ -200,7 +200,7 @@
 
 ---
 
-### 1.3.2 Ads Transformers
+### [ ]  1.3.2 Ads Transformers
 
 | Task ID | Task Name | Description | Technical Context | Acceptance Criteria |
 |---------|-----------|-------------|-------------------|---------------------|
@@ -219,7 +219,7 @@
 
 ---
 
-### 1.3.3 GA4 Transformers
+### [ ]  1.3.3 GA4 Transformers
 
 | Task ID | Task Name | Description | Technical Context | Acceptance Criteria |
 |---------|-----------|-------------|-------------------|---------------------|
@@ -236,7 +236,7 @@
 
 ---
 
-### 1.3.4 Product & SKU Mapping
+### [ ]  1.3.4 Product & SKU Mapping
 
 | Task ID | Task Name | Description | Technical Context | Acceptance Criteria |
 |---------|-----------|-------------|-------------------|---------------------|
@@ -253,7 +253,7 @@
 
 ---
 
-### 1.3.5 BigQuery Schemas & Loading
+### [ ]  1.3.5 BigQuery Schemas & Loading
 
 | Task ID | Task Name | Description | Technical Context | Acceptance Criteria |
 |---------|-----------|-------------|-------------------|---------------------|
@@ -274,9 +274,9 @@
 
 ---
 
-## Phase 1.4: Pipelines & Mart Layer (Week 7-8)
+## [ ] Phase 1.4: Pipelines & Mart Layer (Week 7-8)
 
-### 1.4.1 ETL Pipelines
+### [ ]  1.4.1 ETL Pipelines
 
 | Task ID | Task Name | Description | Technical Context | Acceptance Criteria |
 |---------|-----------|-------------|-------------------|---------------------|
@@ -295,7 +295,7 @@
 
 ---
 
-### 1.4.2 Mart Layer SQL
+### [ ]  1.4.2 Mart Layer SQL
 
 | Task ID | Task Name | Description | Technical Context | Acceptance Criteria |
 |---------|-----------|-------------|-------------------|---------------------|
@@ -316,7 +316,7 @@
 
 ---
 
-### 1.4.3 Simple Alerts (Rule-based - MVP)
+### [ ]  1.4.3 Simple Alerts (Rule-based - MVP)
 
 > **Scope Reduction:** เปลี่ยนจาก AI/ML Models เป็น Rule-based alerts
 > AI/ML Models (Anomaly, Forecaster, Budget Optimizer) ย้ายไป Phase 2
@@ -334,7 +334,7 @@
 
 ---
 
-### 1.4.4 AI/ML Features (Phase 2 - Future)
+### [ ]  1.4.4 AI/ML Features (Phase 2 - Future)
 
 > **ย้ายไป Phase 2:**
 
@@ -347,9 +347,9 @@
 
 ---
 
-## Phase 1.5: Cloud Deployment (MVP)
+## [ ] Phase 1.5: Cloud Deployment (MVP)
 
-### 1.5.1 Cloud Functions
+### [ ]  1.5.1 Cloud Functions
 
 | Task ID | Task Name | Description | Technical Context | Acceptance Criteria |
 |---------|-----------|-------------|-------------------|---------------------|
@@ -370,7 +370,7 @@
 
 ---
 
-### 1.5.2 Basic Logging (MVP)
+### [ ]  1.5.2 Basic Logging (MVP)
 
 > **Scope Reduction:** ใช้ Cloud Logging พื้นฐาน, manual check
 > Automated Monitoring & Alerts ย้ายไป Phase 2
@@ -384,7 +384,7 @@
 
 ---
 
-### 1.5.3 Monitoring & Alerts (Phase 2 - Future)
+### [ ]  1.5.3 Monitoring & Alerts (Phase 2 - Future)
 
 > **ย้ายไป Phase 2:**
 
@@ -397,12 +397,12 @@
 
 ---
 
-## Phase 1.6: Dashboard (MVP - 5 pages)
+## [ ] Phase 1.6: Dashboard (MVP - 5 pages)
 
 > **Scope Reduction:** ลดจาก 9 หน้าเหลือ 5 หน้า
 > Deep Dive pages (Facebook, Google, TikTok) และ AI Insights ย้ายไป Phase 2
 
-### 1.6.1 Looker Studio Setup
+### [ ]  1.6.1 Looker Studio Setup
 
 | Task ID | Task Name | Description | Technical Context | Acceptance Criteria |
 |---------|-----------|-------------|-------------------|---------------------|
@@ -419,7 +419,7 @@
 
 ---
 
-### 1.6.2 Dashboard Pages (MVP - 5 pages)
+### [ ]  1.6.2 Dashboard Pages (MVP - 5 pages)
 
 | Task ID | Task Name | Description | Technical Context | Acceptance Criteria |
 |---------|-----------|-------------|-------------------|---------------------|
@@ -438,7 +438,7 @@
 
 ---
 
-### 1.6.3 Dashboard Pages (Phase 2 - Future)
+### [ ]  1.6.3 Dashboard Pages (Phase 2 - Future)
 
 > **ย้ายไป Phase 2:**
 
@@ -451,7 +451,7 @@
 
 ---
 
-### 1.6.4 Dashboard Polish (MVP)
+### [ ]  1.6.4 Dashboard Polish (MVP)
 
 | Task ID | Task Name | Description | Technical Context | Acceptance Criteria |
 |---------|-----------|-------------|-------------------|---------------------|
@@ -464,7 +464,7 @@
 
 ---
 
-### 1.6.5 Dashboard Polish (Phase 2 - Future)
+### [ ]  1.6.5 Dashboard Polish (Phase 2 - Future)
 
 > **ย้ายไป Phase 2:**
 
@@ -476,7 +476,7 @@
 
 ---
 
-### 1.6.6 Demo Data (for Pitch/Testing)
+### [ ]  1.6.6 Demo Data (for Pitch/Testing)
 
 > **Purpose:** สร้าง realistic demo data เพื่อใช้ในการ pitch และทดสอบระบบโดยไม่ต้องมี data จริง
 > **Timing:** ทำหลังจาก Dashboard structure พร้อมแล้ว เพื่อให้มี schema และ visualization รองรับ
@@ -502,11 +502,11 @@
 
 ---
 
-## Phase 1.7: Testing & Documentation (MVP)
+## [ ] Phase 1.7: Testing & Documentation (MVP)
 
 > **Scope Reduction:** เน้น critical path testing, ลด comprehensive testing ไป Phase 2
 
-### 1.7.1 Testing (MVP - Critical Paths Only)
+### [ ]  1.7.1 Testing (MVP - Critical Paths Only)
 
 | Task ID | Task Name | Description | Technical Context | Acceptance Criteria |
 |---------|-----------|-------------|-------------------|---------------------|
@@ -519,7 +519,7 @@
 
 ---
 
-### 1.7.2 Testing (Phase 2 - Future)
+### [ ]  1.7.2 Testing (Phase 2 - Future)
 
 > **ย้ายไป Phase 2:**
 
@@ -531,7 +531,7 @@
 
 ---
 
-### 1.7.3 Documentation (MVP - Essential Only)
+### [ ]  1.7.3 Documentation (MVP - Essential Only)
 
 | Task ID | Task Name | Description | Technical Context | Acceptance Criteria |
 |---------|-----------|-------------|-------------------|---------------------|
@@ -546,7 +546,7 @@
 
 ---
 
-### 1.7.4 Documentation (Phase 2 - Future)
+### [ ]  1.7.4 Documentation (Phase 2 - Future)
 
 > **ย้ายไป Phase 2:**
 
