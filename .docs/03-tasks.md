@@ -85,9 +85,9 @@
 
 ---
 
-## [ ] Phase 1.2: Extractors (Week 3-4)
+## [🔄] Phase 1.2: Extractors (Week 3-4)
 
-### [ ]  1.2.1 E-commerce Extractors
+### [x]  1.2.1 E-commerce Extractors
 
 | Task ID | Task Name | Description | Technical Context | Acceptance Criteria |
 |---------|-----------|-------------|-------------------|---------------------|
@@ -105,18 +105,18 @@
 | E-012 | TikTok Shop extractor tests | Unit tests สำหรับ TikTok Shop | `tests/test_extractors/test_tiktok_shop.py` | - Mock API calls <br> - All tests pass |
 
 **Checklist:**
-- [ ] E-001: Shopee authentication
-- [ ] E-002: Shopee orders extractor
-- [ ] E-003: Shopee products extractor
-- [ ] E-004: Shopee extractor tests
-- [ ] E-005: Lazada authentication
-- [ ] E-006: Lazada orders extractor
-- [ ] E-007: Lazada products extractor
-- [ ] E-008: Lazada extractor tests
-- [ ] E-009: TikTok Shop authentication
-- [ ] E-010: TikTok Shop orders extractor
-- [ ] E-011: TikTok Shop products extractor
-- [ ] E-012: TikTok Shop extractor tests
+- [x] E-001: Shopee authentication (17 tests)
+- [x] E-002: Shopee orders extractor
+- [x] E-003: Shopee products extractor
+- [x] E-004: Shopee extractor tests (17 tests)
+- [x] E-005: Lazada authentication (23 tests)
+- [x] E-006: Lazada orders extractor
+- [x] E-007: Lazada products extractor
+- [x] E-008: Lazada extractor tests (23 tests)
+- [x] E-009: TikTok Shop authentication (21 tests)
+- [x] E-010: TikTok Shop orders extractor
+- [x] E-011: TikTok Shop products extractor
+- [x] E-012: TikTok Shop extractor tests (21 tests)
 
 ---
 

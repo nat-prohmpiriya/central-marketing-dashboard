@@ -8,6 +8,9 @@ from src.extractors.base import (
     RateLimitError,
     RateLimiter,
 )
+from src.extractors.lazada import LazadaExtractor
+from src.extractors.shopee import ShopeeExtractor
+from src.extractors.tiktok_shop import TikTokShopExtractor
 
 __all__ = [
     "BaseExtractor",
@@ -16,4 +19,7 @@ __all__ = [
     "RateLimitError",
     "APIError",
     "RateLimiter",
+    "ShopeeExtractor",
+    "LazadaExtractor",
+    "TikTokShopExtractor",
 ]
