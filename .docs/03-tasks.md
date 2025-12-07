@@ -64,34 +64,7 @@
 
 ---
 
-### [ ]  1.1.3 Airbyte Setup
-
-| Task ID | Task Name | Description | Technical Context | Acceptance Criteria |
-|---------|-----------|-------------|-------------------|---------------------|
-| AB-001 | Setup Airbyte Cloud account | สมัคร Airbyte Cloud หรือ deploy self-hosted | Airbyte Cloud / Docker | - Account created <br> - Can access UI |
-| AB-002 | Configure BigQuery destination | เชื่อม Airbyte กับ BigQuery | Airbyte UI | - Connection successful <br> - Test sync works |
-| AB-003 | Setup Facebook Ads source | Configure Facebook Marketing connector | Airbyte UI, `airbyte/connections/facebook_ads.yaml` | - Auth successful <br> - Test sync works |
-| AB-004 | Setup Google Ads source | Configure Google Ads connector | Airbyte UI, `airbyte/connections/google_ads.yaml` | - Auth successful <br> - Test sync works |
-| AB-005 | Setup GA4 source | Configure Google Analytics 4 connector | Airbyte UI, `airbyte/connections/ga4.yaml` | - Auth successful <br> - Test sync works |
-| AB-006 | Setup TikTok Ads source | Configure TikTok Marketing connector (50+ streams) | Airbyte UI, `airbyte/connections/tiktok_ads.yaml` | - Auth successful <br> - Test sync works <br> - Note: ~11hr data latency |
-| AB-007 | Configure sync schedules | ตั้ง schedule สำหรับทุก connection | Airbyte UI | - Schedules set (every 6 hours) |
-| AB-008 | Test full sync | ทดสอบ sync ข้อมูลจริง | Airbyte UI, BigQuery | - Data appears in BigQuery <br> - Schema correct |
-| AB-009 | Document Airbyte setup | เขียน documentation | `airbyte/README.md` | - Setup steps documented |
-
-**Checklist:**
-- [ ] AB-001: Setup Airbyte Cloud account
-- [ ] AB-002: Configure BigQuery destination
-- [ ] AB-003: Setup Facebook Ads source
-- [ ] AB-004: Setup Google Ads source
-- [ ] AB-005: Setup GA4 source
-- [ ] AB-006: Setup TikTok Ads source
-- [ ] AB-007: Configure sync schedules
-- [ ] AB-008: Test full sync
-- [ ] AB-009: Document Airbyte setup
-
----
-
-### [ ]  1.1.4 Base Classes
+### [ ]  1.1.3 Base Classes
 
 | Task ID | Task Name | Description | Technical Context | Acceptance Criteria |
 |---------|-----------|-------------|-------------------|---------------------|
@@ -147,33 +120,60 @@
 
 ---
 
-### [ ]  1.2.2 Ads Extractors (Python - platforms without Airbyte)
+### [ ]  1.2.2 Ads & Analytics Extractors (Python + Official SDKs)
 
-> **Note:** Facebook Ads, Google Ads, GA4, และ **TikTok Ads** ใช้ Airbyte แทน (ดู Section 1.1.3)
-> ส่วนนี้เหลือแค่ platforms ที่ไม่มี Airbyte connector
+> **Note:** ใช้ Official SDKs จาก platform ต่างๆ แทน Airbyte
+> - Facebook Ads: `facebook-business`
+> - Google Ads: `google-ads`
+> - TikTok Ads: `tiktok-business-api-sdk`
+> - GA4: `google-analytics-data`
 
 | Task ID | Task Name | Description | Technical Context | Acceptance Criteria |
 |---------|-----------|-------------|-------------------|---------------------|
-| A-001 | LINE Ads authentication | Implement LINE Ads API auth | `src/extractors/line_ads.py` | - Generate access token <br> - Handle token refresh |
-| A-002 | LINE Ads campaign extractor | ดึง LINE Ads campaign performance | `src/extractors/line_ads.py` | - Get campaign metrics <br> - Handle pagination |
-| A-003 | LINE Ads extractor tests | Unit tests | `tests/test_extractors/test_line_ads.py` | - Mock API calls <br> - All tests pass |
-| A-004 | Shopee Ads authentication | Implement Shopee Ads API auth | `src/extractors/shopee_ads.py` | - Reuse Shopee OAuth |
-| A-005 | Shopee Ads extractor | ดึง Shopee Ads performance | `src/extractors/shopee_ads.py` | - Get product ads metrics <br> - Get shop ads metrics |
-| A-006 | Shopee Ads extractor tests | Unit tests | `tests/test_extractors/test_shopee_ads.py` | - Mock API calls <br> - All tests pass |
-| A-007 | Lazada Ads authentication | Implement Lazada Ads API auth | `src/extractors/lazada_ads.py` | - Reuse Lazada OAuth |
-| A-008 | Lazada Ads extractor | ดึง Lazada Sponsored Solutions | `src/extractors/lazada_ads.py` | - Get sponsored products metrics |
-| A-009 | Lazada Ads extractor tests | Unit tests | `tests/test_extractors/test_lazada_ads.py` | - Mock API calls <br> - All tests pass |
+| A-001 | Facebook Ads authentication | Implement Facebook Marketing API auth | `src/extractors/facebook_ads.py` | - OAuth flow works <br> - Handle token refresh |
+| A-002 | Facebook Ads extractor | ดึง Facebook Ads insights | `src/extractors/facebook_ads.py` | - Get campaign/adset/ad insights <br> - Handle pagination <br> - Support breakdowns |
+| A-003 | Facebook Ads extractor tests | Unit tests | `tests/test_extractors/test_facebook_ads.py` | - Mock API calls <br> - All tests pass |
+| A-004 | Google Ads authentication | Implement Google Ads API auth | `src/extractors/google_ads.py` | - OAuth flow works <br> - Developer token setup |
+| A-005 | Google Ads extractor | ดึง Google Ads performance | `src/extractors/google_ads.py` | - Get campaign/adgroup/ad metrics <br> - Use GAQL queries |
+| A-006 | Google Ads extractor tests | Unit tests | `tests/test_extractors/test_google_ads.py` | - Mock API calls <br> - All tests pass |
+| A-007 | TikTok Ads authentication | Implement TikTok Marketing API auth | `src/extractors/tiktok_ads.py` | - OAuth flow works <br> - Handle advertiser_id |
+| A-008 | TikTok Ads extractor | ดึง TikTok Ads performance | `src/extractors/tiktok_ads.py` | - Get campaign/adgroup/ad metrics <br> - Get reporting data |
+| A-009 | TikTok Ads extractor tests | Unit tests | `tests/test_extractors/test_tiktok_ads.py` | - Mock API calls <br> - All tests pass |
+| A-010 | GA4 authentication | Implement GA4 Data API auth | `src/extractors/ga4.py` | - Service account auth <br> - Property ID setup |
+| A-011 | GA4 extractor | ดึง GA4 reports | `src/extractors/ga4.py` | - Get traffic reports <br> - Get ecommerce data <br> - Get page performance |
+| A-012 | GA4 extractor tests | Unit tests | `tests/test_extractors/test_ga4.py` | - Mock API calls <br> - All tests pass |
+| A-013 | LINE Ads authentication | Implement LINE Ads API auth | `src/extractors/line_ads.py` | - Generate access token <br> - Handle token refresh |
+| A-014 | LINE Ads extractor | ดึง LINE Ads campaign performance | `src/extractors/line_ads.py` | - Get campaign metrics <br> - Handle pagination |
+| A-015 | LINE Ads extractor tests | Unit tests | `tests/test_extractors/test_line_ads.py` | - Mock API calls <br> - All tests pass |
+| A-016 | Shopee Ads authentication | Implement Shopee Ads API auth | `src/extractors/shopee_ads.py` | - Reuse Shopee OAuth |
+| A-017 | Shopee Ads extractor | ดึง Shopee Ads performance | `src/extractors/shopee_ads.py` | - Get product ads metrics <br> - Get shop ads metrics |
+| A-018 | Shopee Ads extractor tests | Unit tests | `tests/test_extractors/test_shopee_ads.py` | - Mock API calls <br> - All tests pass |
+| A-019 | Lazada Ads authentication | Implement Lazada Ads API auth | `src/extractors/lazada_ads.py` | - Reuse Lazada OAuth |
+| A-020 | Lazada Ads extractor | ดึง Lazada Sponsored Solutions | `src/extractors/lazada_ads.py` | - Get sponsored products metrics |
+| A-021 | Lazada Ads extractor tests | Unit tests | `tests/test_extractors/test_lazada_ads.py` | - Mock API calls <br> - All tests pass |
 
 **Checklist:**
-- [ ] A-001: LINE Ads authentication
-- [ ] A-002: LINE Ads campaign extractor
-- [ ] A-003: LINE Ads extractor tests
-- [ ] A-004: Shopee Ads authentication
-- [ ] A-005: Shopee Ads extractor
-- [ ] A-006: Shopee Ads extractor tests
-- [ ] A-007: Lazada Ads authentication
-- [ ] A-008: Lazada Ads extractor
-- [ ] A-009: Lazada Ads extractor tests
+- [ ] A-001: Facebook Ads authentication
+- [ ] A-002: Facebook Ads extractor
+- [ ] A-003: Facebook Ads extractor tests
+- [ ] A-004: Google Ads authentication
+- [ ] A-005: Google Ads extractor
+- [ ] A-006: Google Ads extractor tests
+- [ ] A-007: TikTok Ads authentication
+- [ ] A-008: TikTok Ads extractor
+- [ ] A-009: TikTok Ads extractor tests
+- [ ] A-010: GA4 authentication
+- [ ] A-011: GA4 extractor
+- [ ] A-012: GA4 extractor tests
+- [ ] A-013: LINE Ads authentication
+- [ ] A-014: LINE Ads extractor
+- [ ] A-015: LINE Ads extractor tests
+- [ ] A-016: Shopee Ads authentication
+- [ ] A-017: Shopee Ads extractor
+- [ ] A-018: Shopee Ads extractor tests
+- [ ] A-019: Lazada Ads authentication
+- [ ] A-020: Lazada Ads extractor
+- [ ] A-021: Lazada Ads extractor tests
 
 ---
 
@@ -564,31 +564,32 @@
 
 | Phase | MVP Tasks | Phase 2 Tasks | Status |
 |-------|-----------|---------------|--------|
-| 1.1 Foundation (incl. Airbyte) | 28 | 0 | Pending |
-| 1.2 Extractors | 21 | 0 | Pending |
+| 1.1 Foundation (Base Classes) | 19 | 0 | In Progress |
+| 1.2 Extractors (E-commerce + Ads/Analytics) | 33 | 0 | Pending |
 | 1.3 Transformers & Loaders (incl. GA4) | 25 | 0 | Pending |
 | 1.4 Pipelines & Mart & Simple Alerts | 14 | 4 (AI/ML) | Pending |
 | 1.5 Cloud Deployment & Logging | 7 | 4 (Monitoring) | Pending |
 | 1.6 Dashboard (5 pages MVP + Demo Data) | 18 | 7 (Deep Dive) | Pending |
 | 1.7 Testing & Documentation | 5 | 6 (Comprehensive) | Pending |
-| **Total MVP** | **118** | - | **Pending** |
+| **Total MVP** | **~121** | - | **In Progress** |
 | **Total Phase 2** | - | **21** | **Future** |
 
 > **Scope Summary:**
-> - Total MVP tasks: **118 tasks**
-> - Demo Data: +7 tasks (for pitch without real data)
+> - Total MVP tasks: **~121 tasks** (ลบ Airbyte 9, เพิ่ม Ads/GA4 extractors 12)
+> - ETL: Python Only (ไม่ใช้ Airbyte)
+> - Ads SDKs: facebook-business, google-ads, tiktok-business-api-sdk
+> - Analytics SDK: google-analytics-data
 > - Dashboard: 5 หน้า (MVP)
 > - AI/ML: Rule-based alerts (MVP), ML models in Phase 2
-> - Monitoring: Manual (MVP), Automated in Phase 2
 
 ### Priority Order
 
-1. **Critical Path:** F-001 → G-001 → AB-001 → B-001 → E-001 → T-001 → L-001 → P-001 → M-001 → SA-001 → C-001 → D-001
+1. **Critical Path:** F-001 → G-001 → B-001 → E-001 → A-001 → T-001 → L-001 → P-001 → M-001 → SA-001 → C-001 → D-001
 2. **Dependencies:** ทำตาม Phase order (1.1 → 1.2 → 1.3 → 1.4 → 1.5 → 1.6 → 1.7)
 3. **Parallelizable:**
    - E-commerce extractors: Shopee, Lazada, TikTok Shop ทำ parallel ได้
-   - Airbyte setup (AB-003, AB-004, AB-005, AB-006) สามารถทำ parallel ได้
-   - Ads extractors: LINE, Shopee Ads, Lazada Ads ทำ parallel ได้
+   - Ads extractors: Facebook, Google, TikTok, LINE, Shopee Ads, Lazada Ads ทำ parallel ได้
+   - GA4 extractor: ทำ parallel กับ Ads extractors ได้
 
 ---
 
@@ -616,3 +617,4 @@
 | 1.2 | Dec 2025 | - | TikTok Ads moved to Airbyte (AB-006), removed Python TikTok Ads tasks (A-011 to A-014), reduced total to 126 tasks |
 | 1.3 | Dec 2025 | - | **MVP Scope Reduction:** 126 → 111 tasks, Dashboard 9→5, ML→Rule-based, ย้าย Monitoring/Deep Dive/AI ไป Phase 2 |
 | 1.4 | Dec 2025 | - | **Added Demo Data:** +7 tasks (DEMO-001 to DEMO-007) for pitch/testing without real data, total 118 tasks |
+| 1.5 | Dec 2025 | - | **Airbyte → Python Only:** ลบ 1.1.3 Airbyte Setup (9 tasks), เพิ่ม Ads/GA4 extractors ใน 1.2.2 (A-001 to A-021), ใช้ Official SDKs ทั้งหมด |

@@ -32,7 +32,7 @@
        │          │               │          │                      │
        ▼          ▼               ▼          ▼                      ▼
 ┌─────────────────────────────────────────────────────────────────────────────────┐
-│                        ETL LAYER (Hybrid: Airbyte + Python)                      │
+│                          ETL LAYER (Python Only)                                 │
 ├─────────────────────────────────────────────────────────────────────────────────┤
 │                                                                                  │
 │  ┌───────────────────────────────┐    ┌───────────────────────────────┐         │
@@ -99,8 +99,9 @@
 
 | Component | Technology | Reason |
 |-----------|------------|--------|
-| **ETL - Pre-built** | Airbyte (Self-hosted/Cloud) | Pre-built connectors for Facebook, Google Ads, GA4 |
-| **ETL - Custom** | Python 3.11+ | Custom extractors for Shopee, Lazada, TikTok |
+| **ETL** | Python 3.11+ with Official SDKs | Full control, no external dependencies |
+| **Ads SDKs** | `facebook-business`, `google-ads`, `tiktok-business-api-sdk` | Official SDKs from platforms |
+| **Analytics SDK** | `google-analytics-data` | Official Google GA4 SDK |
 | **Data Warehouse** | Google BigQuery | Serverless, scalable, cost-effective |
 | **Orchestration** | Cloud Scheduler + Cloud Functions | Serverless, low maintenance |
 | **Dashboard** | Google Looker Studio | Free, native BigQuery integration |
@@ -108,22 +109,22 @@
 | **Secrets Management** | Google Secret Manager | Secure API credentials |
 | **Monitoring** | Cloud Logging (basic) | Manual monitoring for MVP (Phase 2: Cloud Monitoring) |
 
-### 1.3 Airbyte vs Python Decision Matrix
+### 1.3 Platform SDK Matrix
 
-| Platform | Airbyte Connector | Python Custom | Decision | Reason |
-|----------|-------------------|---------------|----------|--------|
-| Facebook Ads | ✅ Official (11 streams) | ❌ | **Airbyte** | Mature connector, handles pagination & rate limits |
-| Google Ads | ✅ Official (19 tables) | ❌ | **Airbyte** | Complex API, connector handles GAQL |
-| Google Analytics 4 | ✅ Official | ❌ | **Airbyte** | Native BigQuery export also available |
-| TikTok Ads | ✅ Official (50+ streams) | ❌ | **Airbyte** | Full support: campaigns, ad groups, ads, reports by demographics |
-| Shopee | ❌ None | ✅ | **Python** | No connector available |
-| Lazada | ❌ None | ✅ | **Python** | No connector available |
-| TikTok Shop | ❌ None | ✅ | **Python** | TikTok Marketing ≠ TikTok Shop (different API) |
-| LINE Ads | ❌ None | ✅ | **Python** | No connector available |
-| Shopee Ads | ❌ None | ✅ | **Python** | No connector available |
-| Lazada Ads | ❌ None | ✅ | **Python** | No connector available |
+| Platform | Official SDK | PyPI Package | Notes |
+|----------|-------------|--------------|-------|
+| Facebook Ads | ✅ | `facebook-business` | Meta Business SDK, handles pagination & rate limits |
+| Google Ads | ✅ | `google-ads` | Requires Developer Token, uses GAQL |
+| Google Analytics 4 | ✅ | `google-analytics-data` | GA4 Data API |
+| TikTok Ads | ✅ | `tiktok-business-api-sdk` | Released Nov 2024, Marketing API |
+| Shopee | ✅ | Custom (requests) | Open Platform API |
+| Lazada | ✅ | Custom (requests) | Open Platform API |
+| TikTok Shop | ✅ | Custom (requests) | Different from TikTok Ads API |
+| LINE Ads | ✅ | Custom (requests) | LINE Business API |
+| Shopee Ads | ✅ | Custom (requests) | Part of Shopee Open Platform |
+| Lazada Ads | ✅ | Custom (requests) | Lazada Sponsored Solutions API |
 
-> **Note:** TikTok Marketing connector ใน Airbyte รองรับ TikTok Ads (โฆษณา) แต่ไม่รองรับ TikTok Shop (ร้านค้า) ซึ่งเป็นคนละ API
+> **Note:** ทุก platform มี Official API ที่รองรับ Python ได้ ใช้ Official SDK เมื่อมี หรือ `requests`/`httpx` สำหรับ custom implementation
 
 ---
 
@@ -744,203 +745,9 @@ CREATE TABLE mart.cross_channel_attribution (
 
 ---
 
-## 3. Airbyte Setup
+## 3. API Definitions & Data Extractors (Python)
 
-### 3.1 Airbyte Deployment Options
-
-| Option | Pros | Cons | Recommended For |
-|--------|------|------|-----------------|
-| **Airbyte Cloud** | Managed, no maintenance, quick setup | Monthly cost (~$300-500+) | Production, less DevOps |
-| **Airbyte OSS (Self-hosted)** | Free, full control | Requires server maintenance | Cost-sensitive, DevOps available |
-| **Airbyte on GCP (Cloud Run)** | Balance of control & managed | Some setup required | GCP-native stack |
-
-**Recommendation:** Start with **Airbyte Cloud** for quick setup, migrate to self-hosted if cost becomes concern.
-
-### 3.2 Airbyte Connectors Configuration
-
-#### Facebook Ads Connector
-```yaml
-connector: source-facebook-marketing
-config:
-  account_id: "${FACEBOOK_ACCOUNT_ID}"
-  access_token: "${FACEBOOK_ACCESS_TOKEN}"
-  start_date: "2024-01-01"
-  end_date: ""  # Empty for ongoing sync
-  insights_lookback_window: 28
-  fetch_thumbnail_images: false
-  custom_insights:
-    - name: "daily_ads_insights"
-      fields:
-        - impressions
-        - clicks
-        - spend
-        - reach
-        - frequency
-        - cpc
-        - cpm
-        - ctr
-        - actions
-        - action_values
-        - conversions
-        - conversion_values
-      breakdowns:
-        - age
-        - gender
-      action_breakdowns:
-        - action_type
-      level: ad
-      time_increment: 1
-sync_mode: incremental
-destination_sync_mode: append_dedup
-```
-
-#### Google Ads Connector
-```yaml
-connector: source-google-ads
-config:
-  credentials:
-    developer_token: "${GOOGLE_ADS_DEVELOPER_TOKEN}"
-    client_id: "${GOOGLE_ADS_CLIENT_ID}"
-    client_secret: "${GOOGLE_ADS_CLIENT_SECRET}"
-    refresh_token: "${GOOGLE_ADS_REFRESH_TOKEN}"
-  customer_id: "${GOOGLE_ADS_CUSTOMER_ID}"
-  start_date: "2024-01-01"
-  end_date: ""
-  custom_queries:
-    - query: |
-        SELECT
-          campaign.id,
-          campaign.name,
-          campaign.advertising_channel_type,
-          ad_group.id,
-          ad_group.name,
-          segments.date,
-          metrics.impressions,
-          metrics.clicks,
-          metrics.cost_micros,
-          metrics.conversions,
-          metrics.conversions_value
-        FROM ad_group
-      table_name: ad_group_performance
-sync_mode: incremental
-destination_sync_mode: append_dedup
-```
-
-#### Google Analytics 4 Connector
-```yaml
-connector: source-google-analytics-data-api
-config:
-  credentials:
-    credentials_json: "${GA4_CREDENTIALS_JSON}"
-  property_id: "${GA4_PROPERTY_ID}"
-  date_ranges_start_date: "2024-01-01"
-  custom_reports:
-    - name: "daily_traffic"
-      dimensions:
-        - date
-        - sessionSource
-        - sessionMedium
-        - sessionCampaignName
-        - deviceCategory
-        - country
-      metrics:
-        - sessions
-        - totalUsers
-        - newUsers
-        - screenPageViews
-        - averageSessionDuration
-        - bounceRate
-        - transactions
-        - purchaseRevenue
-    - name: "page_performance"
-      dimensions:
-        - date
-        - pagePath
-        - pageTitle
-      metrics:
-        - screenPageViews
-        - averageSessionDuration
-        - bounceRate
-    - name: "ecommerce_events"
-      dimensions:
-        - date
-        - eventName
-        - transactionId
-      metrics:
-        - eventCount
-        - purchaseRevenue
-        - itemsPurchased
-sync_mode: incremental
-destination_sync_mode: append_dedup
-```
-
-### 3.3 Airbyte to BigQuery Destination
-
-```yaml
-connector: destination-bigquery
-config:
-  project_id: "${GCP_PROJECT_ID}"
-  dataset_id: "raw"
-  dataset_location: "asia-southeast1"
-  credentials_json: "${BIGQUERY_CREDENTIALS_JSON}"
-  loading_method:
-    method: "GCS Staging"
-    gcs_bucket_name: "${GCS_STAGING_BUCKET}"
-    gcs_bucket_path: "airbyte-staging"
-  transformation_priority: "interactive"
-  big_query_client_buffer_size_mb: 15
-```
-
-#### TikTok Ads (Marketing) Connector
-```yaml
-connector: source-tiktok-marketing
-config:
-  credentials:
-    auth_type: "oauth2.0"  # or "sandbox_access_token" for testing
-    access_token: "${TIKTOK_ACCESS_TOKEN}"
-    advertiser_id: "${TIKTOK_ADVERTISER_ID}"
-  start_date: "2024-01-01"
-  end_date: ""
-  attribution_window: 3  # days, default 3
-  include_deleted: false
-streams:
-  # Entity streams
-  - advertisers
-  - campaigns
-  - ad_groups
-  - ads
-  - audiences
-  - creative_assets_images
-  - creative_assets_videos
-  # Report streams (with daily granularity)
-  - ads_reports_daily
-  - ad_groups_reports_daily
-  - campaigns_reports_daily
-  - advertisers_reports_daily
-  # Audience reports
-  - ads_reports_by_age_and_gender
-  - ads_reports_by_country
-  - ads_reports_by_platform
-sync_mode: incremental
-destination_sync_mode: append_dedup
-```
-
-> **Note:** TikTok API มี Data Latency ~11 ชั่วโมง จึงควรตั้ง sync หลังเที่ยงคืน
-
-### 3.4 Airbyte Sync Schedule
-
-| Connection | Frequency | Time (BKK) | Duration Est. |
-|------------|-----------|------------|---------------|
-| Facebook Ads → BigQuery | Every 6 hours | 00:00, 06:00, 12:00, 18:00 | ~10-15 min |
-| Google Ads → BigQuery | Every 6 hours | 00:30, 06:30, 12:30, 18:30 | ~10-15 min |
-| GA4 → BigQuery | Every 6 hours | 01:00, 07:00, 13:00, 19:00 | ~15-20 min |
-| TikTok Ads → BigQuery | Every 6 hours | 01:30, 07:30, 13:30, 19:30 | ~15-20 min |
-
----
-
-## 4. API Definitions & Data Extractors (Python)
-
-### 4.1 E-commerce Platform APIs
+### 3.1 E-commerce Platform APIs
 
 #### Shopee API
 ```python
@@ -989,7 +796,7 @@ class TikTokShopExtractor:
     def search_products(self, page_number: int, page_size: int) -> List[Dict]
 ```
 
-### 3.2 Advertising Platform APIs
+### 3.2 Advertising Platform APIs (Official SDKs)
 
 #### Facebook Marketing API
 ```python
@@ -1068,16 +875,83 @@ class GoogleAdsExtractor:
 ```
 
 #### TikTok Ads API
-> **Note:** TikTok Ads ใช้ Airbyte connector แทน Python extractor แล้ว (ดู Section 3.2)
->
-> Airbyte TikTok Marketing connector รองรับ 50+ streams รวมถึง:
-> - Entity streams: advertisers, campaigns, ad_groups, ads, audiences
-> - Report streams: daily, hourly, lifetime granularities
-> - Audience reports: by age/gender, country, platform
+```python
+# Using official tiktok-business-api-sdk
+# pip install tiktok-business-api-sdk
+
+from business_api_client import BusinessApiClient
+from business_api_client.api import ReportingApi, CampaignApi, AdApi
+
+class TikTokAdsExtractor:
+    """TikTok Marketing API extractor using official SDK"""
+
+    def __init__(self, access_token: str, advertiser_id: str):
+        self.client = BusinessApiClient(access_token=access_token)
+        self.advertiser_id = advertiser_id
+
+    def get_campaigns(self) -> List[Dict]:
+        """Get all campaigns for advertiser"""
+        api = CampaignApi(self.client)
+        return api.campaign_get(advertiser_id=self.advertiser_id)
+
+    def get_ads(self, campaign_id: str = None) -> List[Dict]:
+        """Get ads, optionally filtered by campaign"""
+        api = AdApi(self.client)
+        return api.ad_get(advertiser_id=self.advertiser_id, campaign_ids=[campaign_id])
+
+    def get_report(self, start_date: str, end_date: str, dimensions: List[str]) -> List[Dict]:
+        """Get performance report with specified dimensions"""
+        api = ReportingApi(self.client)
+        return api.report_integrated_get(
+            advertiser_id=self.advertiser_id,
+            report_type="BASIC",
+            dimensions=dimensions,
+            metrics=["impressions", "clicks", "spend", "conversions"],
+            start_date=start_date,
+            end_date=end_date
+        )
+```
+
+> **Note:** TikTok API มี Data Latency ~11 ชั่วโมง จึงควรตั้ง sync หลังเที่ยงคืน
+
+#### GA4 API
+```python
+# Using official google-analytics-data SDK
+# pip install google-analytics-data
+
+from google.analytics.data_v1beta import BetaAnalyticsDataClient
+from google.analytics.data_v1beta.types import RunReportRequest
+
+class GA4Extractor:
+    """Google Analytics 4 Data API extractor"""
+
+    def __init__(self, property_id: str):
+        self.client = BetaAnalyticsDataClient()
+        self.property_id = property_id
+
+    def get_traffic_report(self, start_date: str, end_date: str) -> List[Dict]:
+        """Get traffic report by source/medium"""
+        request = RunReportRequest(
+            property=f"properties/{self.property_id}",
+            dimensions=[
+                {"name": "date"},
+                {"name": "sessionSource"},
+                {"name": "sessionMedium"},
+            ],
+            metrics=[
+                {"name": "sessions"},
+                {"name": "totalUsers"},
+                {"name": "bounceRate"},
+                {"name": "purchaseRevenue"},
+            ],
+            date_ranges=[{"start_date": start_date, "end_date": end_date}],
+        )
+        return self.client.run_report(request)
+```
 
 ---
 
-## 5. Project Structure
+## 4. Project Structure
 
 ```
 central-marketing-dashboard/
@@ -1089,29 +963,22 @@ central-marketing-dashboard/
 ├── .claude/
 │   └── commands/               # Claude commands
 │
-├── airbyte/                    # Airbyte configurations
-│   ├── connections/            # Connection configs
-│   │   ├── facebook_ads.yaml
-│   │   ├── google_ads.yaml
-│   │   ├── ga4.yaml
-│   │   └── tiktok_ads.yaml     # TikTok Marketing connector
-│   ├── destinations/           # Destination configs
-│   │   └── bigquery.yaml
-│   └── README.md               # Airbyte setup guide
-│
 ├── src/
 │   ├── __init__.py
 │   │
-│   ├── extractors/             # Custom API clients (Python-based)
+│   ├── extractors/             # API clients (Python + Official SDKs)
 │   │   ├── __init__.py
 │   │   ├── base.py             # Base extractor class
 │   │   ├── shopee.py           # Shopee API client
 │   │   ├── lazada.py           # Lazada API client
 │   │   ├── tiktok_shop.py      # TikTok Shop API client
+│   │   ├── facebook_ads.py     # Facebook Ads (facebook-business SDK)
+│   │   ├── google_ads.py       # Google Ads (google-ads SDK)
+│   │   ├── tiktok_ads.py       # TikTok Ads (tiktok-business-api-sdk)
+│   │   ├── ga4.py              # GA4 (google-analytics-data SDK)
 │   │   ├── line_ads.py         # LINE Ads API client
 │   │   ├── shopee_ads.py       # Shopee Ads API client
 │   │   └── lazada_ads.py       # Lazada Ads API client
-│   │   # Note: Facebook Ads, Google Ads, GA4, TikTok Ads ใช้ Airbyte แทน
 │   │
 │   ├── transformers/           # Data transformation logic
 │   │   ├── __init__.py
@@ -1454,12 +1321,13 @@ class ETLErrorHandler:
 - Implement config management
 - Setup basic logging (Cloud Logging)
 
-### Phase 1.2: Extractors
-- Setup Airbyte (Facebook, Google, GA4, TikTok Ads)
-- Implement Shopee extractor (Python)
-- Implement Lazada extractor (Python)
-- Implement TikTok Shop extractor (Python)
-- Implement LINE/Shopee/Lazada Ads extractors (Python)
+### Phase 1.2: Extractors (All Python)
+- Implement Facebook Ads extractor (facebook-business SDK)
+- Implement Google Ads extractor (google-ads SDK)
+- Implement TikTok Ads extractor (tiktok-business-api-sdk)
+- Implement GA4 extractor (google-analytics-data SDK)
+- Implement Shopee/Lazada/TikTok Shop extractors (custom)
+- Implement LINE/Shopee/Lazada Ads extractors (custom)
 
 ### Phase 1.3: Transformers & Loaders
 - Implement order transformers
@@ -1520,3 +1388,4 @@ class ETLErrorHandler:
 | 1.1 | Dec 2025 | - | Added GA4, Airbyte hybrid architecture |
 | 1.2 | Dec 2025 | - | TikTok Ads moved to Airbyte (official connector available) |
 | 1.3 | Dec 2025 | - | **MVP Scope Reduction:** Dashboard 9→5 หน้า, ML→Rule-based, ย้าย Automation/Monitoring ไป Phase 2 |
+| 1.4 | Dec 2025 | - | **Airbyte → Python Only:** ลบ Airbyte, ใช้ Official SDKs ทั้งหมด (facebook-business, google-ads, tiktok-business-api-sdk, google-analytics-data) |
