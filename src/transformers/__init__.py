@@ -12,6 +12,15 @@ from src.transformers.base import (
     MappingError,
     TransformError,
 )
+from src.transformers.ga4 import (
+    GA4Page,
+    GA4PagesTransformer,
+    GA4Session,
+    GA4SessionsTransformer,
+    GA4Traffic,
+    GA4TrafficTransformer,
+    UnifiedGA4Transformer,
+)
 from src.transformers.orders import (
     LazadaOrderTransformer,
     OrderItem,
@@ -41,4 +50,12 @@ __all__ = [
     "TikTokAdsTransformer",
     "UnifiedAdsTransformer",
     "UnifiedAd",
+    # GA4
+    "GA4SessionsTransformer",
+    "GA4TrafficTransformer",
+    "GA4PagesTransformer",
+    "UnifiedGA4Transformer",
+    "GA4Session",
+    "GA4Traffic",
+    "GA4Page",
 ]
