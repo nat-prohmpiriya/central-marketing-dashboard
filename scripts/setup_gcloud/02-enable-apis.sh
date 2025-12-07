@@ -48,3 +48,16 @@ echo "Enabled APIs:"
 gcloud services list --enabled --filter="name:($( IFS='|'; echo "${APIS[*]}" ))" --format="table(name)"
 echo ""
 echo "Next: Run 03-create-service-account.sh"
+
+
+#   | API                           | ใช้ทำอะไร                  |
+#   |-------------------------------|----------------------------|
+#   | bigquery.googleapis.com       | เก็บข้อมูล data warehouse  |
+#   | cloudfunctions.googleapis.com | รัน ETL pipelines          |
+#   | cloudscheduler.googleapis.com | ตั้งเวลารัน ETL อัตโนมัติ  |
+#   | secretmanager.googleapis.com  | เก็บ API keys ปลอดภัย      |
+#   | storage.googleapis.com        | Cloud Storage              |
+#   | cloudbuild.googleapis.com     | Build Cloud Functions      |
+#   | run.googleapis.com            | Cloud Run (Gen2 Functions) |
+#   | logging.googleapis.com        | ดู logs                    |
+#   | monitoring.googleapis.com     | Monitor ระบบ               

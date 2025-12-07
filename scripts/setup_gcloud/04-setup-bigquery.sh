@@ -59,3 +59,9 @@ echo "BigQuery datasets created:"
 bq ls --project_id="$PROJECT_ID"
 echo ""
 echo "Next: Run 05-setup-secret-manager.sh"
+
+#   | Dataset | ใช้เก็บอะไร                                        |
+#   |---------|----------------------------------------------------|
+#   | raw     | ข้อมูลดิบจาก APIs (Shopee, Lazada, Facebook, etc.) |
+#   | staging | ข้อมูลที่ transform แล้ว                           |
+#   | mart    | ข้อมูลพร้อมใช้ใน Dashboard                         

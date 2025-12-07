@@ -316,7 +316,7 @@
 
 ---
 
-### [ ]  1.4.3 Simple Alerts (Rule-based - MVP)
+### [x]  1.4.3 Simple Alerts (Rule-based - MVP)
 
 > **Scope Reduction:** เปลี่ยนจาก AI/ML Models เป็น Rule-based alerts
 > AI/ML Models (Anomaly, Forecaster, Budget Optimizer) ย้ายไป Phase 2
@@ -328,13 +328,13 @@
 | SA-003 | Alerts pipeline | Pipeline to generate alerts | `src/pipelines/alerts_pipeline.py` | - Run rules <br> - Save to mart_simple_alerts |
 
 **Checklist:**
-- [ ] SA-001: Simple alerts module
-- [ ] SA-002: Alerts mart SQL
-- [ ] SA-003: Alerts pipeline
+- [x] SA-001: Simple alerts module
+- [x] SA-002: Alerts mart SQL
+- [x] SA-003: Alerts pipeline
 
 ---
 
-### [ ]  1.4.4 AI/ML Features (Phase 2 - Future)
+### [x]  1.4.4 AI/ML Features (Phase 2 - Future)
 
 > **ย้ายไป Phase 2:**
 
@@ -349,7 +349,7 @@
 
 ## [ ] Phase 1.5: Cloud Deployment (MVP)
 
-### [ ]  1.5.1 Cloud Functions
+### [x]  1.5.1 Cloud Functions
 
 | Task ID | Task Name | Description | Technical Context | Acceptance Criteria |
 |---------|-----------|-------------|-------------------|---------------------|
@@ -361,16 +361,16 @@
 | C-006 | Deploy script | Script to deploy all functions | `scripts/deploy_functions.sh` | - One command deploy |
 
 **Checklist:**
-- [ ] C-001: E-commerce Cloud Function
-- [ ] C-002: Ads Cloud Function
-- [ ] C-003: Mart Cloud Function
-- [ ] C-004: Alerts Cloud Function
-- [ ] C-005: Setup Cloud Scheduler
-- [ ] C-006: Deploy script
+- [x] C-001: E-commerce Cloud Function
+- [x] C-002: Ads Cloud Function
+- [x] C-003: Mart Cloud Function
+- [x] C-004: Alerts Cloud Function
+- [x] C-005: Setup Cloud Scheduler
+- [x] C-006: Deploy script
 
 ---
 
-### [ ]  1.5.2 Basic Logging (MVP)
+### [x]  1.5.2 Basic Logging (MVP)
 
 > **Scope Reduction:** ใช้ Cloud Logging พื้นฐาน, manual check
 > Automated Monitoring & Alerts ย้ายไป Phase 2
@@ -380,7 +380,7 @@
 | LOG-001 | Setup Cloud Logging | Configure logging for all functions | GCP Console | - Logs visible in Cloud Logging <br> - Manual check process documented |
 
 **Checklist:**
-- [ ] LOG-001: Setup Cloud Logging
+- [x] LOG-001: Setup Cloud Logging
 
 ---
 
@@ -402,7 +402,7 @@
 > **Scope Reduction:** ลดจาก 9 หน้าเหลือ 5 หน้า
 > Deep Dive pages (Facebook, Google, TikTok) และ AI Insights ย้ายไป Phase 2
 
-### [ ]  1.6.1 Looker Studio Setup
+### [ ]  1.6.1 Looker Studio Setup (work at web provider)
 
 | Task ID | Task Name | Description | Technical Context | Acceptance Criteria |
 |---------|-----------|-------------|-------------------|---------------------|

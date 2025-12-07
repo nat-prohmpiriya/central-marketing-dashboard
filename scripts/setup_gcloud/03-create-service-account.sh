@@ -89,3 +89,13 @@ echo "IMPORTANT: Add to .env:"
 echo "  GOOGLE_APPLICATION_CREDENTIALS=$SA_KEY_PATH"
 echo ""
 echo "Next: Run 04-setup-bigquery.sh"
+
+
+#   | Service         | ฟรี                             | เสียเงินเมื่อ|
+#   |-----------------|---------------------------------|---------------------|
+#   | BigQuery        | 10 GB storage, 1 TB query/เดือน | เกิน free tier|
+#   | Cloud Functions | 2 ล้าน invocations/เดือน        | เกิน free tier|
+#   | Cloud Scheduler | 3 jobs ฟรี                      | job ที่ 4+|
+#   | Secret Manager  | 6 secrets ฟรี                   | เกิน + access calls |
+#   | Cloud Storage   | 5 GB ฟรี                        | เกิน free tier|
+#   | Logging         | 50 GB/เดือน ฟรี                 | เกิน free tier
