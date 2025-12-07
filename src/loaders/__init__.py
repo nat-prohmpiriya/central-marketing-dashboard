@@ -7,7 +7,12 @@ from src.loaders.base import (
     SchemaError,
     WriteError,
 )
-from src.loaders.bigquery import BigQueryLoader
+
+# Lazy import BigQueryLoader to avoid import errors when google.cloud is not installed
+try:
+    from src.loaders.bigquery import BigQueryLoader
+except ImportError:
+    BigQueryLoader = None  # type: ignore[misc, assignment]
 
 __all__ = [
     "BaseLoader",
