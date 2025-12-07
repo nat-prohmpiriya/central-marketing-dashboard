@@ -82,13 +82,49 @@ class BigQueryLoader:
         print("Loading products...")
         results["products"] = self.load_data(data["products"], "staging", "stg_products")
 
-        # Load orders
+        # Load orders - add item_count for mart compatibility
         print("Loading orders...")
-        results["orders"] = self.load_data(data["orders"], "staging", "stg_orders")
+        orders_data = []
+        for order in data["orders"]:
+            order_copy = order.copy()
+            # Count items for this order
+            item_count = sum(1 for item in data["order_items"] if item["order_id"] == order["order_id"])
+            order_copy["item_count"] = item_count
+            order_copy["platform_order_id"] = order["order_id"]
+            orders_data.append(order_copy)
+        results["orders"] = self.load_data(orders_data, "staging", "stg_orders")
 
-        # Load order items
+        # Load order items - add platform and order_date for mart compatibility
         print("Loading order items...")
-        results["order_items"] = self.load_data(data["order_items"], "staging", "stg_order_items")
+        order_items_data = []
+        # Create order->platform and order->date mapping
+        order_platform_map = {o["order_id"]: o["platform"] for o in data["orders"]}
+        order_date_map = {o["order_id"]: o["order_date"] for o in data["orders"]}
+        for item in data["order_items"]:
+            item_copy = item.copy()
+            item_copy["platform"] = order_platform_map.get(item["order_id"], "unknown")
+            item_copy["order_date"] = order_date_map.get(item["order_id"])
+            item_copy["item_id"] = item["order_item_id"]
+            item_copy["name"] = item["product_name"]
+            item_copy["total_price"] = item["subtotal"]
+            order_items_data.append(item_copy)
+        results["order_items"] = self.load_data(order_items_data, "staging", "stg_order_items")
+
+        # Create SKU mappings from products (for mart compatibility)
+        print("Loading SKU mappings...")
+        sku_mappings = []
+        seen_skus = set()
+        for product in data["products"]:
+            if product["master_sku"] not in seen_skus:
+                sku_mappings.append({
+                    "master_sku": product["master_sku"],
+                    "platform": product["platform"],
+                    "platform_sku": product["sku"],
+                    "product_name": product["name"],
+                    "category": product["category"],
+                })
+                seen_skus.add(product["master_sku"])
+        results["sku_mappings"] = self.load_data(sku_mappings, "staging", "stg_sku_mappings")
 
         return results
 
@@ -111,11 +147,46 @@ class BigQueryLoader:
         print("Loading ads...")
         results["ads"] = self.load_data(data["ads"], "staging", "stg_ads_creatives")
 
-        # Load daily performance
+        # Load daily performance - also as stg_ads for mart compatibility
         print("Loading ads daily performance...")
         results["daily_performance"] = self.load_data(
             data["daily_performance"], "staging", "stg_ads_daily_performance"
         )
+
+        # Transform for stg_ads (mart compatibility)
+        print("Loading stg_ads (mart compatibility)...")
+        stg_ads_data = []
+        for i, record in enumerate(data["daily_performance"]):
+            stg_ads_data.append({
+                "record_id": f"ADS-{i+1:06d}",
+                "date": record["date"],
+                "platform": record["platform"],
+                "account_id": f"ACC-{record['platform'][:3].upper()}",
+                "campaign_id": record["campaign_id"],
+                "campaign_name": record["campaign_name"],
+                "campaign_type": record.get("objective", "conversion"),
+                "objective": record.get("objective", "CONVERSIONS"),
+                "adgroup_id": f"{record['campaign_id']}-AG01",
+                "adgroup_name": "Default AdGroup",
+                "ad_id": f"{record['campaign_id']}-AD01",
+                "ad_name": "Default Ad",
+                "spend": record["spend"],
+                "impressions": record["impressions"],
+                "clicks": record["clicks"],
+                "reach": int(record["impressions"] * 0.7),
+                "conversions": record["conversions"],
+                "conversion_value": record["revenue"],
+                "ctr": record["ctr"],
+                "cpc": record["cpc"],
+                "cpm": record["cpm"],
+                "video_views": int(record["impressions"] * 0.3) if record["platform"] in ["tiktok_ads", "facebook"] else 0,
+                "likes": int(record["clicks"] * 0.1),
+                "comments": int(record["clicks"] * 0.02),
+                "shares": int(record["clicks"] * 0.01),
+                "status": "active",
+                "level": "campaign",
+            })
+        results["stg_ads"] = self.load_data(stg_ads_data, "staging", "stg_ads")
 
         return results
 
@@ -126,17 +197,79 @@ class BigQueryLoader:
 
         results = {}
 
-        # Load traffic summary
+        # Load traffic summary with required columns
         print("Loading GA4 traffic summary...")
-        results["traffic_summary"] = self.load_data(
-            data["traffic_summary"], "staging", "stg_ga4_traffic"
-        )
+        traffic_data = []
+        for i, record in enumerate(data["traffic_summary"]):
+            traffic_data.append({
+                "record_id": f"GA4-TRF-{i+1:06d}",
+                "property_id": "GA4-DEMO-001",
+                "date": record["date"],
+                "source": record["source"],
+                "medium": record["medium"],
+                "campaign": f"campaign_{i % 20 + 1:02d}" if record["medium"] == "cpc" else "(not set)",
+                "channel_grouping": self._get_channel_grouping(record["source"], record["medium"]),
+                "sessions": record["sessions"],
+                "total_users": record["users"],
+                "new_users": record["new_users"],
+                "bounce_rate": record["bounce_rate"],
+                "engagement_rate": 100 - record["bounce_rate"],
+                "avg_session_duration": record["avg_session_duration"],
+                "transactions": record["conversions"],
+                "revenue": record["revenue"],
+                "avg_order_value": record["revenue"] / max(1, record["conversions"]),
+                "conversion_rate": record["conversions"] / max(1, record["sessions"]) * 100,
+            })
+        results["traffic_summary"] = self.load_data(traffic_data, "staging", "stg_ga4_traffic")
+
+        # Load GA4 sessions (for mart compatibility)
+        print("Loading GA4 sessions...")
+        sessions_data = []
+        for i, record in enumerate(data["traffic_summary"]):
+            sessions_data.append({
+                "record_id": f"GA4-SES-{i+1:06d}",
+                "property_id": "GA4-DEMO-001",
+                "date": record["date"],
+                "source": record["source"],
+                "medium": record["medium"],
+                "campaign": f"campaign_{i % 20 + 1:02d}" if record["medium"] == "cpc" else "(not set)",
+                "channel_grouping": self._get_channel_grouping(record["source"], record["medium"]),
+                "sessions": record["sessions"],
+                "engaged_sessions": int(record["sessions"] * (100 - record["bounce_rate"]) / 100),
+                "total_users": record["users"],
+                "new_users": record["new_users"],
+                "active_users": record["users"],
+                "returning_users": record["users"] - record["new_users"],
+                "bounce_rate": record["bounce_rate"],
+                "engagement_rate": 100 - record["bounce_rate"],
+                "avg_session_duration": record["avg_session_duration"],
+                "events_per_session": 5.0,
+                "screen_page_views": record["sessions"] * 3,
+                "session_duration_total": record["sessions"] * record["avg_session_duration"],
+            })
+        results["sessions"] = self.load_data(sessions_data, "staging", "stg_ga4_sessions")
 
         # Load page performance
         print("Loading GA4 page performance...")
-        results["page_performance"] = self.load_data(
-            data["page_performance"], "staging", "stg_ga4_pages"
-        )
+        pages_data = []
+        for i, record in enumerate(data["page_performance"]):
+            pages_data.append({
+                "record_id": f"GA4-PG-{i+1:06d}",
+                "property_id": "GA4-DEMO-001",
+                "date": record["date"],
+                "page_path": record["page_path"],
+                "page_title": record["page_title"],
+                "page_views": record["pageviews"],
+                "unique_page_views": record["unique_pageviews"],
+                "sessions": int(record["pageviews"] * 0.7),
+                "bounce_rate": 50.0,
+                "engagement_rate": 50.0,
+                "avg_time_on_page": record["avg_time_on_page"],
+                "exit_rate": record["exit_rate"],
+                "entrances": record["entrances"],
+                "exits": record["exits"],
+            })
+        results["page_performance"] = self.load_data(pages_data, "staging", "stg_ga4_pages")
 
         # Load device summary
         print("Loading GA4 device summary...")
@@ -151,6 +284,26 @@ class BigQueryLoader:
         )
 
         return results
+
+    def _get_channel_grouping(self, source: str, medium: str) -> str:
+        """Get channel grouping from source/medium."""
+        source_lower = source.lower()
+        medium_lower = medium.lower()
+
+        if medium_lower in ["cpc", "ppc", "paid"]:
+            return "Paid Search" if "google" in source_lower else "Paid Social"
+        elif medium_lower == "organic":
+            return "Organic Search"
+        elif medium_lower == "social":
+            return "Organic Social"
+        elif medium_lower == "referral":
+            return "Referral"
+        elif medium_lower == "email":
+            return "Email"
+        elif medium_lower == "(none)" or source_lower == "(direct)":
+            return "Direct"
+        else:
+            return "Other"
 
     def load_all(self, days_back: int = 90) -> dict:
         """Load all demo data."""
