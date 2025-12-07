@@ -42,8 +42,7 @@
 │  │  • Facebook Ads               │    │  • Shopee Orders/Products     │         │
 │  │  • Google Ads                 │    │  • Lazada Orders/Products     │         │
 │  │  • Google Analytics 4         │    │  • TikTok Shop                │         │
-│  │                               │    │  • TikTok Ads                 │         │
-│  │                               │    │  • LINE Ads                   │         │
+│  │  • TikTok Ads (50+ streams)   │    │  • LINE Ads                   │         │
 │  │                               │    │  • Shopee/Lazada Ads          │         │
 │  └───────────────┬───────────────┘    └───────────────┬───────────────┘         │
 │                  │                                    │                          │
@@ -84,14 +83,15 @@
 ┌─────────────────────────────────────────────────────────────────────────────────┐
 │                         VISUALIZATION (Looker Studio)                            │
 ├─────────────────────────────────────────────────────────────────────────────────┤
-│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ │
-│  │Executive │ │  Shop    │ │   Ads    │ │ Facebook │ │  Google  │ │  TikTok  │ │
-│  │ Overview │ │Performnce│ │ Overview │ │Deep Dive │ │Deep Dive │ │Deep Dive │ │
-│  └──────────┘ └──────────┘ └──────────┘ └──────────┘ └──────────┘ └──────────┘ │
-│  ┌──────────┐ ┌──────────┐ ┌──────────┐                                        │
-│  │ Product  │ │  GA4     │ │   AI     │                                        │
-│  │Analytics │ │Analytics │ │ Insights │                                        │
-│  └──────────┘ └──────────┘ └──────────┘                                        │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐              │
+│  │Executive │ │  Shop    │ │   Ads    │ │ Product  │ │  GA4     │  (5 pages)  │
+│  │ Overview │ │Performnce│ │ Overview │ │Analytics │ │Analytics │    MVP      │
+│  └──────────┘ └──────────┘ └──────────┘ └──────────┘ └──────────┘              │
+│                                                                                 │
+│  ┌─────────────────────────────────────────────────────────────┐               │
+│  │  Phase 2: Facebook Deep Dive, Google Deep Dive,            │               │
+│  │           TikTok Deep Dive, AI Insights                     │               │
+│  └─────────────────────────────────────────────────────────────┘               │
 └─────────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -106,22 +106,24 @@
 | **Dashboard** | Google Looker Studio | Free, native BigQuery integration |
 | **Version Control** | Git + GitHub | Standard practice |
 | **Secrets Management** | Google Secret Manager | Secure API credentials |
-| **Monitoring** | Cloud Logging + Cloud Monitoring | Native GCP integration |
+| **Monitoring** | Cloud Logging (basic) | Manual monitoring for MVP (Phase 2: Cloud Monitoring) |
 
 ### 1.3 Airbyte vs Python Decision Matrix
 
 | Platform | Airbyte Connector | Python Custom | Decision | Reason |
 |----------|-------------------|---------------|----------|--------|
-| Facebook Ads | ✅ Official | ❌ | **Airbyte** | Mature connector, handles pagination & rate limits |
-| Google Ads | ✅ Official | ❌ | **Airbyte** | Complex API, connector handles GAQL |
+| Facebook Ads | ✅ Official (11 streams) | ❌ | **Airbyte** | Mature connector, handles pagination & rate limits |
+| Google Ads | ✅ Official (19 tables) | ❌ | **Airbyte** | Complex API, connector handles GAQL |
 | Google Analytics 4 | ✅ Official | ❌ | **Airbyte** | Native BigQuery export also available |
-| TikTok Ads | ❌ Community only | ✅ | **Python** | No reliable connector |
+| TikTok Ads | ✅ Official (50+ streams) | ❌ | **Airbyte** | Full support: campaigns, ad groups, ads, reports by demographics |
 | Shopee | ❌ None | ✅ | **Python** | No connector available |
 | Lazada | ❌ None | ✅ | **Python** | No connector available |
-| TikTok Shop | ❌ None | ✅ | **Python** | No connector available |
+| TikTok Shop | ❌ None | ✅ | **Python** | TikTok Marketing ≠ TikTok Shop (different API) |
 | LINE Ads | ❌ None | ✅ | **Python** | No connector available |
 | Shopee Ads | ❌ None | ✅ | **Python** | No connector available |
 | Lazada Ads | ❌ None | ✅ | **Python** | No connector available |
+
+> **Note:** TikTok Marketing connector ใน Airbyte รองรับ TikTok Ads (โฆษณา) แต่ไม่รองรับ TikTok Shop (ร้านค้า) ซึ่งเป็นคนละ API
 
 ---
 
@@ -607,17 +609,17 @@ CREATE TABLE mart.product_performance (
     units_rank INT64
 );
 
--- mart_ai_recommendations
-CREATE TABLE mart.ai_recommendations (
+-- mart_simple_alerts (Rule-based alerts for MVP)
+-- Note: mart_ai_recommendations (ML-based) moved to Phase 2
+CREATE TABLE mart.simple_alerts (
     generated_at TIMESTAMP,
-    recommendation_type STRING,  -- 'budget_allocation', 'anomaly', 'prediction', 'action'
-    priority STRING,  -- 'high', 'medium', 'low'
+    alert_type STRING,  -- 'roas_low', 'revenue_drop', 'cpa_high'
+    severity STRING,  -- 'warning', 'critical'
     title STRING,
     description STRING,
-    current_value FLOAT64,
-    recommended_value FLOAT64,
-    expected_impact FLOAT64,
-    confidence_score FLOAT64,
+    metric_name STRING,
+    metric_value FLOAT64,
+    threshold_value FLOAT64,
     affected_platform STRING,
     affected_campaign_id STRING,
     is_acknowledged BOOL,
@@ -889,6 +891,42 @@ config:
   big_query_client_buffer_size_mb: 15
 ```
 
+#### TikTok Ads (Marketing) Connector
+```yaml
+connector: source-tiktok-marketing
+config:
+  credentials:
+    auth_type: "oauth2.0"  # or "sandbox_access_token" for testing
+    access_token: "${TIKTOK_ACCESS_TOKEN}"
+    advertiser_id: "${TIKTOK_ADVERTISER_ID}"
+  start_date: "2024-01-01"
+  end_date: ""
+  attribution_window: 3  # days, default 3
+  include_deleted: false
+streams:
+  # Entity streams
+  - advertisers
+  - campaigns
+  - ad_groups
+  - ads
+  - audiences
+  - creative_assets_images
+  - creative_assets_videos
+  # Report streams (with daily granularity)
+  - ads_reports_daily
+  - ad_groups_reports_daily
+  - campaigns_reports_daily
+  - advertisers_reports_daily
+  # Audience reports
+  - ads_reports_by_age_and_gender
+  - ads_reports_by_country
+  - ads_reports_by_platform
+sync_mode: incremental
+destination_sync_mode: append_dedup
+```
+
+> **Note:** TikTok API มี Data Latency ~11 ชั่วโมง จึงควรตั้ง sync หลังเที่ยงคืน
+
 ### 3.4 Airbyte Sync Schedule
 
 | Connection | Frequency | Time (BKK) | Duration Est. |
@@ -896,6 +934,7 @@ config:
 | Facebook Ads → BigQuery | Every 6 hours | 00:00, 06:00, 12:00, 18:00 | ~10-15 min |
 | Google Ads → BigQuery | Every 6 hours | 00:30, 06:30, 12:30, 18:30 | ~10-15 min |
 | GA4 → BigQuery | Every 6 hours | 01:00, 07:00, 13:00, 19:00 | ~15-20 min |
+| TikTok Ads → BigQuery | Every 6 hours | 01:30, 07:30, 13:30, 19:30 | ~15-20 min |
 
 ---
 
@@ -1029,26 +1068,12 @@ class GoogleAdsExtractor:
 ```
 
 #### TikTok Ads API
-```python
-# Endpoints to use:
-# - POST /open_api/v1.3/report/integrated/get/ - Get reports
-
-class TikTokAdsExtractor:
-    base_url = "https://business-api.tiktok.com"
-
-    metrics = [
-        "spend", "impressions", "clicks", "reach",
-        "video_views_p25", "video_views_p50", "video_views_p75", "video_views_p100",
-        "likes", "shares", "comments", "follows",
-        "conversion", "cost_per_conversion", "conversion_rate"
-    ]
-
-    dimensions = ["campaign_id", "adgroup_id", "ad_id", "stat_time_day"]
-
-    def get_campaign_report(self, advertiser_id: str, start_date: str, end_date: str) -> List[Dict]
-    def get_adgroup_report(self, advertiser_id: str, start_date: str, end_date: str) -> List[Dict]
-    def get_ad_report(self, advertiser_id: str, start_date: str, end_date: str) -> List[Dict]
-```
+> **Note:** TikTok Ads ใช้ Airbyte connector แทน Python extractor แล้ว (ดู Section 3.2)
+>
+> Airbyte TikTok Marketing connector รองรับ 50+ streams รวมถึง:
+> - Entity streams: advertisers, campaigns, ad_groups, ads, audiences
+> - Report streams: daily, hourly, lifetime granularities
+> - Audience reports: by age/gender, country, platform
 
 ---
 
@@ -1068,7 +1093,8 @@ central-marketing-dashboard/
 │   ├── connections/            # Connection configs
 │   │   ├── facebook_ads.yaml
 │   │   ├── google_ads.yaml
-│   │   └── ga4.yaml
+│   │   ├── ga4.yaml
+│   │   └── tiktok_ads.yaml     # TikTok Marketing connector
 │   ├── destinations/           # Destination configs
 │   │   └── bigquery.yaml
 │   └── README.md               # Airbyte setup guide
@@ -1082,11 +1108,10 @@ central-marketing-dashboard/
 │   │   ├── shopee.py           # Shopee API client
 │   │   ├── lazada.py           # Lazada API client
 │   │   ├── tiktok_shop.py      # TikTok Shop API client
-│   │   ├── tiktok_ads.py       # TikTok Ads API client
 │   │   ├── line_ads.py         # LINE Ads API client
 │   │   ├── shopee_ads.py       # Shopee Ads API client
 │   │   └── lazada_ads.py       # Lazada Ads API client
-│   │   # Note: Facebook Ads, Google Ads, GA4 ใช้ Airbyte แทน
+│   │   # Note: Facebook Ads, Google Ads, GA4, TikTok Ads ใช้ Airbyte แทน
 │   │
 │   ├── transformers/           # Data transformation logic
 │   │   ├── __init__.py
@@ -1102,11 +1127,10 @@ central-marketing-dashboard/
 │   │   ├── base.py             # Base loader class
 │   │   └── bigquery.py         # BigQuery loader
 │   │
-│   ├── models/                 # AI/ML models
+│   ├── models/                 # Rule-based alerts (MVP) / AI models (Phase 2)
 │   │   ├── __init__.py
-│   │   ├── anomaly_detection.py    # Anomaly detection
-│   │   ├── budget_optimizer.py     # Budget recommendations
-│   │   └── forecaster.py           # Performance forecasting
+│   │   ├── simple_alerts.py        # Rule-based alerts (ROAS < 2, Revenue drop > 20%)
+│   │   # Phase 2: anomaly_detection.py, budget_optimizer.py, forecaster.py
 │   │
 │   ├── pipelines/              # ETL pipeline orchestration
 │   │   ├── __init__.py
@@ -1355,7 +1379,7 @@ class ETLErrorHandler:
     def handle_api_error(self, error, platform, endpoint):
         # Log error with context
         # Retry with exponential backoff
-        # Alert if critical
+        # Log to Cloud Logging (manual check)
 
     def handle_data_quality_error(self, error, table, record):
         # Log to dead letter queue
@@ -1365,15 +1389,17 @@ class ETLErrorHandler:
     def handle_bigquery_error(self, error, query):
         # Log error
         # Retry once
-        # Alert and fail if persists
+        # Log and fail if persists
 ```
 
-#### Monitoring Alerts
-- ETL job failures
-- Data freshness > 12 hours
-- API rate limit hits
-- BigQuery quota warnings
-- Anomaly detection alerts
+#### Monitoring (MVP - Manual)
+> **Phase 1 MVP:** Manual monitoring ผ่าน Cloud Logging Console
+> **Phase 2:** Automated alerts via Cloud Monitoring + Slack/Email
+
+- ETL job failures → Check Cloud Logging manually
+- Data freshness → Check BigQuery table metadata
+- API rate limit hits → Check Cloud Logging
+- BigQuery quota → Check GCP Console
 
 ---
 
@@ -1389,31 +1415,17 @@ class ETLErrorHandler:
 
 ### 7.2 CI/CD Pipeline
 
-```yaml
-# GitHub Actions workflow
-name: Deploy ETL
+> **Phase 1 MVP:** Manual deployment via scripts
+> **Phase 2:** Automated CI/CD via GitHub Actions
 
-on:
-  push:
-    branches: [main]
+```bash
+# MVP: Manual deployment
+./scripts/deploy_functions.sh
+./scripts/setup_bigquery.py
 
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Run tests
-        run: make test
-
-  deploy:
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Deploy Cloud Functions
-        run: make deploy-functions
-      - name: Update BigQuery schemas
-        run: make update-schemas
+# Phase 2: GitHub Actions workflow (future)
+# - Automated testing
+# - Automated deployment on push to main
 ```
 
 ### 7.3 ETL Schedule
@@ -1424,43 +1436,79 @@ jobs:
 | Ads performance | Every 6 hours | ~15-20 min |
 | Product sync | Daily 6:00 AM | ~5-10 min |
 | Mart refresh | Every 6 hours (after ETL) | ~5-10 min |
-| AI recommendations | Daily 7:00 AM | ~5-10 min |
+| Simple alerts | Daily 7:00 AM | ~2-5 min |
 
 ---
 
-## 8. Implementation Phases
+## 8. Implementation Phases (MVP Scope)
 
-### Phase 1.1: Foundation (Week 1-2)
+> **Scope Reduction for MVP:**
+> - Dashboard: 9 → 5 หน้า
+> - AI/ML: Statistical models → Rule-based
+> - Monitoring: Automated alerts → Manual check
+> - Testing: 100% coverage → Critical paths only
+
+### Phase 1.1: Foundation
 - Setup GCP project & BigQuery
 - Create base project structure
 - Implement config management
-- Setup logging & monitoring
+- Setup basic logging (Cloud Logging)
 
-### Phase 1.2: Extractors (Week 3-4)
-- Implement Shopee extractor
-- Implement Lazada extractor
-- Implement TikTok Shop extractor
-- Implement Facebook Ads extractor
-- Implement Google Ads extractor
-- Implement TikTok Ads extractor
+### Phase 1.2: Extractors
+- Setup Airbyte (Facebook, Google, GA4, TikTok Ads)
+- Implement Shopee extractor (Python)
+- Implement Lazada extractor (Python)
+- Implement TikTok Shop extractor (Python)
+- Implement LINE/Shopee/Lazada Ads extractors (Python)
 
-### Phase 1.3: Transformers & Loaders (Week 5-6)
+### Phase 1.3: Transformers & Loaders
 - Implement order transformers
 - Implement ads transformers
+- Implement GA4 transformers
 - Implement BigQuery loader
 - Create staging layer tables
 
-### Phase 1.4: Mart Layer & AI (Week 7-8)
+### Phase 1.4: Mart Layer & Simple Alerts
 - Create mart layer tables
 - Implement aggregation queries
-- Implement anomaly detection
-- Implement budget recommendations
+- **Implement simple alerts (Rule-based)**
+  - ROAS < 2 → Alert
+  - Revenue drop > 20% → Alert
+  - CPA > threshold → Alert
 
-### Phase 1.5: Dashboard & Polish (Week 9-10)
-- Create Looker Studio dashboard (8 pages)
+### Phase 1.5: Dashboard (5 pages MVP)
+- Create Looker Studio dashboard
+  1. Executive Overview
+  2. Shop Performance
+  3. Ads Performance Overview
+  4. Product Analytics
+  5. Website Analytics (GA4 basic)
 - Connect to BigQuery data sources
-- Testing & bug fixes
-- Documentation
+- Basic testing
+- Essential documentation
+
+---
+
+## 9. Phase 2 Features (Future)
+
+> **ย้ายไป Phase 2:**
+
+### Dashboard Deep Dives
+- Facebook Ads Deep Dive
+- Google Ads Deep Dive
+- TikTok & Others Deep Dive
+- AI Insights page
+
+### AI/ML Models
+- Anomaly Detection (Statistical)
+- Performance Forecaster (Time series)
+- Budget Optimizer (ML-based)
+
+### Automation & Monitoring
+- Cloud Monitoring dashboards
+- Automated alerts (Slack/Email)
+- CI/CD pipeline (GitHub Actions)
+- Comprehensive unit tests
 
 ---
 
@@ -1469,3 +1517,6 @@ jobs:
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
 | 1.0 | Dec 2025 | - | Initial technical plan |
+| 1.1 | Dec 2025 | - | Added GA4, Airbyte hybrid architecture |
+| 1.2 | Dec 2025 | - | TikTok Ads moved to Airbyte (official connector available) |
+| 1.3 | Dec 2025 | - | **MVP Scope Reduction:** Dashboard 9→5 หน้า, ML→Rule-based, ย้าย Automation/Monitoring ไป Phase 2 |

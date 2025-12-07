@@ -205,9 +205,12 @@
 
 ---
 
-## 3. Core Features (Phase 1)
+## 3. Core Features (Phase 1 MVP)
 
-### 3.1 Dashboard Pages (9 หน้า)
+### 3.1 Dashboard Pages (5 หน้า - MVP)
+
+> **Scope Reduction:** ลดจาก 9 หน้าเหลือ 5 หน้าหลักสำหรับ MVP
+> หน้า Deep Dive (Facebook, Google, TikTok) และ AI Insights ย้ายไป Phase 2
 
 #### Page 1: Executive Overview
 **Purpose:** ให้ผู้บริหารเห็นภาพรวมธุรกิจในหน้าเดียว
@@ -219,7 +222,7 @@
 - Total Orders
 - Period comparison (vs yesterday, vs last week, vs last month)
 - Revenue trend chart (30 days)
-- Top alerts / anomalies
+- Simple alerts (Rule-based: ROAS < 2, Revenue drop > 20%)
 
 ---
 
@@ -237,108 +240,89 @@
 ---
 
 #### Page 3: Ads Performance Overview
-**Purpose:** ภาพรวม advertising performance ทุก platform
+**Purpose:** ภาพรวม advertising performance ทุก platform (รวม Facebook, Google, TikTok, LINE, Marketplace Ads)
 
 **Key Elements:**
 - Total Ad Spend by platform
 - ROAS by platform
 - CPA by platform
 - Impressions, Clicks, CTR by platform
+- Campaign performance table (all platforms combined)
 - Spend vs Revenue correlation chart
 - Budget utilization rate
+- Simple performance flags (Rule-based: ROAS < 2 = Poor, 2-4 = OK, > 4 = Good)
 
 ---
 
-#### Page 4: Facebook/Meta Ads Deep Dive
-**Purpose:** รายละเอียด Facebook/Meta Ads performance
-
-**Key Elements:**
-- Campaign performance table (spend, revenue, ROAS, CPA)
-- Ad Set breakdown
-- Audience performance (age, gender, placement)
-- Creative performance
-- Hourly/Daily trend
-- Funnel metrics (Impressions → Clicks → Add to Cart → Purchase)
-
----
-
-#### Page 5: Google Ads Deep Dive
-**Purpose:** รายละเอียด Google Ads performance
-
-**Key Elements:**
-- Campaign type breakdown (Search, Display, Shopping, Performance Max, YouTube)
-- Keyword performance (for Search)
-- Search terms report
-- Device performance
-- Geographic performance
-- Quality Score tracking
-
----
-
-#### Page 6: TikTok & Other Ads Deep Dive
-**Purpose:** รายละเอียด TikTok Ads และ platforms อื่นๆ
-
-**Key Elements:**
-- TikTok Ads: Campaign performance, Video creative, Engagement metrics
-- LINE Ads: Campaign performance, LAP metrics
-- Marketplace Ads (Shopee/Lazada): Product Ads, Shop Ads performance
-
----
-
-#### Page 7: Product Analytics
+#### Page 4: Product Analytics
 **Purpose:** วิเคราะห์ performance ระดับ product
 
 **Key Elements:**
 - Top selling products (by revenue, by units)
 - Product performance by platform
-- Stock availability alerts
 - Price comparison across platforms
 - Product margin analysis
 - Category performance
 
 ---
 
-#### Page 8: Website Analytics (GA4)
+#### Page 5: Website Analytics (GA4 - Basic)
 **Purpose:** วิเคราะห์ traffic และ user behavior จาก Google Analytics 4
 
 **Key Elements:**
 - Sessions & Users overview
 - Traffic sources breakdown (Organic, Paid, Direct, Social, Referral)
 - Top landing pages
-- Conversion funnel (Sessions → Add to Cart → Checkout → Purchase)
-- Device & Browser breakdown
-- Geographic distribution
-- User engagement metrics (Bounce rate, Session duration, Pages per session)
-- Campaign performance (UTM tracking)
+- Basic conversion metrics
+- Device breakdown
 
 ---
 
-#### Page 9: AI Insights & Recommendations
-**Purpose:** AI-driven insights และ recommendations
+### 3.2 Dashboard Pages (Phase 2 - Future)
 
-**Key Elements:**
-- Budget allocation recommendations
-- Anomaly detection alerts
-- Performance predictions (next 7 days)
-- Underperforming campaign alerts
-- Action recommendations with expected impact
-- Cross-channel attribution insights (Ads → GA4 → E-commerce)
+> **ย้ายไป Phase 2:**
+
+#### Page 6: Facebook/Meta Ads Deep Dive (Phase 2)
+- Campaign performance table (spend, revenue, ROAS, CPA)
+- Ad Set breakdown
+- Audience performance (age, gender, placement)
+- Creative performance
+- Hourly/Daily trend
+- Funnel metrics
+
+#### Page 7: Google Ads Deep Dive (Phase 2)
+- Campaign type breakdown (Search, Display, Shopping, PMax, YouTube)
+- Keyword performance
+- Search terms report
+- Device & Geographic performance
+- Quality Score tracking
+
+#### Page 8: TikTok & Other Ads Deep Dive (Phase 2)
+- TikTok Ads: Video creative, Engagement metrics
+- LINE Ads: Campaign performance, LAP metrics
+- Marketplace Ads: Product Ads, Shop Ads performance
+
+#### Page 9: AI Insights & Recommendations (Phase 2)
+- Budget allocation recommendations (ML-based)
+- Anomaly detection alerts (Statistical models)
+- Performance predictions (Time series forecasting)
+- Cross-channel attribution insights
 
 ---
 
-### 3.2 Data Pipeline (Phase 1)
+### 3.3 Data Pipeline (Phase 1)
 
 **ETL Strategy: Hybrid Approach (Airbyte + Python)**
 
 | Data Source | ETL Tool | Reason |
 |-------------|----------|--------|
-| Facebook Ads | Airbyte | มี connector สำเร็จรูป |
-| Google Ads | Airbyte | มี connector สำเร็จรูป |
+| Facebook Ads | Airbyte | มี connector สำเร็จรูป (11 streams, 18 insight reports) |
+| Google Ads | Airbyte | มี connector สำเร็จรูป (19 tables, custom GAQL) |
 | Google Analytics 4 | Airbyte | มี connector สำเร็จรูป |
-| TikTok Ads | Python | ไม่มี official Airbyte connector |
+| TikTok Ads | Airbyte | มี connector สำเร็จรูป (50+ streams, reports by demographics) |
 | Shopee | Python | ไม่มี Airbyte connector |
 | Lazada | Python | ไม่มี Airbyte connector |
-| TikTok Shop | Python | ไม่มี Airbyte connector |
+| TikTok Shop | Python | ไม่มี Airbyte connector (TikTok Marketing ≠ TikTok Shop) |
 | LINE Ads | Python | ไม่มี Airbyte connector |
 | Shopee Ads | Python | ไม่มี Airbyte connector |
 | Lazada Ads | Python | ไม่มี Airbyte connector |
@@ -348,14 +332,16 @@
                     ┌─────────────┐
 [Facebook Ads] ────►│             │
 [Google Ads]   ────►│   Airbyte   │────┐
-[GA4]          ────►│             │    │
+[GA4]          ────►│  (4 sources)│    │
+[TikTok Ads]   ────►│             │    │
                     └─────────────┘    │
                                        ▼
 [Shopee]       ────►┌─────────────┐  ┌─────────────┐   ┌───────────────┐
 [Lazada]       ────►│   Python    │─►│  BigQuery   │──►│ Looker Studio │
 [TikTok Shop]  ────►│   Scripts   │  │             │   │               │
-[TikTok Ads]   ────►│             │  └─────────────┘   └───────────────┘
-[LINE Ads]     ────►└─────────────┘
+[LINE Ads]     ────►│  (6 sources)│  └─────────────┘   └───────────────┘
+[Shopee Ads]   ────►│             │
+[Lazada Ads]   ────►└─────────────┘
 [CSV Uploads]  ────►
 ```
 
@@ -371,19 +357,42 @@
 
 ---
 
-### 3.3 AI/ML Features (Phase 1)
+### 3.4 AI/ML Features (Phase 1 MVP - Rule-based)
 
-**Budget Optimization:**
-- Recommend budget allocation based on historical ROAS
-- Method: Statistical analysis + rule-based recommendations
+> **Scope Reduction:** ใช้ Rule-based แทน ML Model สำหรับ MVP
+> ML Models ย้ายไป Phase 2
 
-**Anomaly Detection:**
-- Alert when metrics deviate significantly
-- Method: Z-score / IQR threshold
+**Simple Alerts (Rule-based):**
+- ROAS < 2 → แจ้งเตือน "Campaign ต้องปรับปรุง"
+- Revenue drop > 20% (vs yesterday) → แจ้งเตือน "Revenue ลดลงผิดปกติ"
+- CPA > target threshold → แจ้งเตือน "CPA สูงเกินไป"
+
+**Performance Flags:**
+- ROAS < 2 = 🔴 Poor
+- ROAS 2-4 = 🟡 OK
+- ROAS > 4 = 🟢 Good
+
+**Budget Recommendations (Simple):**
+- ถ้า ROAS สูง → แนะนำเพิ่ม budget
+- ถ้า ROAS ต่ำ → แนะนำลด budget
+- Method: Simple threshold rules (ไม่ใช้ ML)
+
+---
+
+### 3.5 AI/ML Features (Phase 2 - Future)
+
+> **ย้ายไป Phase 2:**
+
+**Advanced Anomaly Detection:**
+- Method: Z-score / IQR threshold / Statistical models
 
 **Performance Prediction:**
 - 7-day forecast per platform
-- Method: Simple time series (moving average, trend analysis)
+- Method: Time series (moving average, ARIMA)
+
+**Budget Optimization:**
+- ML-based budget allocation
+- Method: Optimization algorithms
 
 ---
 
@@ -430,15 +439,34 @@
 
 ---
 
-## 6. Out of Scope (Phase 1)
+## 6. Out of Scope (Phase 1 MVP)
 
-สิ่งที่ **ไม่รวม** ใน Phase 1:
+สิ่งที่ **ไม่รวม** ใน Phase 1 MVP:
+
+**User & Multi-tenant:**
 - ❌ User registration / authentication system
 - ❌ Multi-tenant data isolation
 - ❌ Subscription & billing
 - ❌ Self-service platform connection (ต้อง dev เชื่อมให้)
 - ❌ White-label / custom branding
-- ❌ Advanced ML models (ใช้ statistical methods แทน)
+
+**Dashboard Deep Dives:**
+- ❌ Facebook Ads Deep Dive page (ใช้ Ads Overview รวมแทน)
+- ❌ Google Ads Deep Dive page (ใช้ Ads Overview รวมแทน)
+- ❌ TikTok & Others Deep Dive page (ใช้ Ads Overview รวมแทน)
+- ❌ AI Insights page (ใช้ Simple alerts ใน Overview แทน)
+
+**AI/ML:**
+- ❌ Advanced ML models (ใช้ Rule-based แทน)
+- ❌ Anomaly Detection models (ใช้ threshold alerts แทน)
+- ❌ Performance Forecasting (ย้ายไป Phase 2)
+- ❌ Budget Optimizer ML (ใช้ simple rules แทน)
+
+**Automation & Monitoring:**
+- ❌ Cloud Monitoring dashboards (manual check แทน)
+- ❌ Automated alerting system (Slack/Email) - ย้ายไป Phase 2
+- ❌ Unit Test 100% coverage (ทำแค่ critical paths)
+- ❌ CI/CD pipeline (manual deploy แทน)
 
 ---
 
@@ -498,3 +526,5 @@
 |---------|------|--------|---------|
 | 1.0 | Dec 2025 | - | Initial specification |
 | 1.1 | Dec 2025 | - | Restructured to Phase 1 (Single Tenant) + Phase 2 roadmap |
+| 1.2 | Dec 2025 | - | Added GA4, updated ETL strategy (TikTok Ads now uses Airbyte) |
+| 1.3 | Dec 2025 | - | **MVP Scope Reduction:** ลด Dashboard 9→5 หน้า, เปลี่ยน ML เป็น Rule-based, ย้าย Automation/Deep Dive ไป Phase 2 |

@@ -73,9 +73,10 @@
 | AB-003 | Setup Facebook Ads source | Configure Facebook Marketing connector | Airbyte UI, `airbyte/connections/facebook_ads.yaml` | - Auth successful <br> - Test sync works |
 | AB-004 | Setup Google Ads source | Configure Google Ads connector | Airbyte UI, `airbyte/connections/google_ads.yaml` | - Auth successful <br> - Test sync works |
 | AB-005 | Setup GA4 source | Configure Google Analytics 4 connector | Airbyte UI, `airbyte/connections/ga4.yaml` | - Auth successful <br> - Test sync works |
-| AB-006 | Configure sync schedules | ตั้ง schedule สำหรับทุก connection | Airbyte UI | - Schedules set (every 6 hours) |
-| AB-007 | Test full sync | ทดสอบ sync ข้อมูลจริง | Airbyte UI, BigQuery | - Data appears in BigQuery <br> - Schema correct |
-| AB-008 | Document Airbyte setup | เขียน documentation | `airbyte/README.md` | - Setup steps documented |
+| AB-006 | Setup TikTok Ads source | Configure TikTok Marketing connector (50+ streams) | Airbyte UI, `airbyte/connections/tiktok_ads.yaml` | - Auth successful <br> - Test sync works <br> - Note: ~11hr data latency |
+| AB-007 | Configure sync schedules | ตั้ง schedule สำหรับทุก connection | Airbyte UI | - Schedules set (every 6 hours) |
+| AB-008 | Test full sync | ทดสอบ sync ข้อมูลจริง | Airbyte UI, BigQuery | - Data appears in BigQuery <br> - Schema correct |
+| AB-009 | Document Airbyte setup | เขียน documentation | `airbyte/README.md` | - Setup steps documented |
 
 **Checklist:**
 - [ ] AB-001: Setup Airbyte Cloud account
@@ -83,9 +84,10 @@
 - [ ] AB-003: Setup Facebook Ads source
 - [ ] AB-004: Setup Google Ads source
 - [ ] AB-005: Setup GA4 source
-- [ ] AB-006: Configure sync schedules
-- [ ] AB-007: Test full sync
-- [ ] AB-008: Document Airbyte setup
+- [ ] AB-006: Setup TikTok Ads source
+- [ ] AB-007: Configure sync schedules
+- [ ] AB-008: Test full sync
+- [ ] AB-009: Document Airbyte setup
 
 ---
 
@@ -145,46 +147,33 @@
 
 ---
 
-### 1.2.2 Ads Extractors
+### 1.2.2 Ads Extractors (Python - platforms without Airbyte)
+
+> **Note:** Facebook Ads, Google Ads, GA4, และ **TikTok Ads** ใช้ Airbyte แทน (ดู Section 1.1.3)
+> ส่วนนี้เหลือแค่ platforms ที่ไม่มี Airbyte connector
 
 | Task ID | Task Name | Description | Technical Context | Acceptance Criteria |
 |---------|-----------|-------------|-------------------|---------------------|
-| A-001 | Facebook Ads authentication | Implement Facebook Marketing API auth | `src/extractors/facebook_ads.py` | - Use access token <br> - Handle token refresh |
-| A-002 | Facebook Ads account insights | ดึง account-level insights | `src/extractors/facebook_ads.py` | - Get daily insights <br> - Include all required metrics |
-| A-003 | Facebook Ads campaign insights | ดึง campaign-level insights | `src/extractors/facebook_ads.py` | - Get campaign performance <br> - Include breakdowns |
-| A-004 | Facebook Ads adset/ad insights | ดึง adset และ ad-level insights | `src/extractors/facebook_ads.py` | - Get adset performance <br> - Get ad performance |
-| A-005 | Facebook Ads extractor tests | Unit tests | `tests/test_extractors/test_facebook_ads.py` | - Mock API calls <br> - All tests pass |
-| A-006 | Google Ads authentication | Implement Google Ads API auth | `src/extractors/google_ads.py` | - OAuth2 flow <br> - Refresh token works |
-| A-007 | Google Ads campaign report | ดึง campaign performance | `src/extractors/google_ads.py` | - GAQL query works <br> - Get all campaign types |
-| A-008 | Google Ads ad group report | ดึง ad group performance | `src/extractors/google_ads.py` | - Get ad group metrics |
-| A-009 | Google Ads keyword report | ดึง keyword performance | `src/extractors/google_ads.py` | - Get keyword metrics <br> - Include quality score |
-| A-010 | Google Ads extractor tests | Unit tests | `tests/test_extractors/test_google_ads.py` | - Mock API calls <br> - All tests pass |
-| A-011 | TikTok Ads authentication | Implement TikTok Ads API auth | `src/extractors/tiktok_ads.py` | - Generate access token |
-| A-012 | TikTok Ads campaign report | ดึง campaign performance | `src/extractors/tiktok_ads.py` | - Get campaign metrics <br> - Include video metrics |
-| A-013 | TikTok Ads adgroup/ad report | ดึง adgroup และ ad performance | `src/extractors/tiktok_ads.py` | - Get adgroup metrics <br> - Get ad metrics |
-| A-014 | TikTok Ads extractor tests | Unit tests | `tests/test_extractors/test_tiktok_ads.py` | - Mock API calls <br> - All tests pass |
-| A-015 | LINE Ads extractor | ดึง LINE Ads performance (ถ้าใช้) | `src/extractors/line_ads.py` | - Get campaign metrics |
-| A-016 | Shopee Ads extractor | ดึง Shopee Ads performance (ถ้าใช้) | `src/extractors/shopee_ads.py` | - Get product ads metrics |
-| A-017 | Lazada Ads extractor | ดึง Lazada Ads performance (ถ้าใช้) | `src/extractors/lazada_ads.py` | - Get sponsored products metrics |
+| A-001 | LINE Ads authentication | Implement LINE Ads API auth | `src/extractors/line_ads.py` | - Generate access token <br> - Handle token refresh |
+| A-002 | LINE Ads campaign extractor | ดึง LINE Ads campaign performance | `src/extractors/line_ads.py` | - Get campaign metrics <br> - Handle pagination |
+| A-003 | LINE Ads extractor tests | Unit tests | `tests/test_extractors/test_line_ads.py` | - Mock API calls <br> - All tests pass |
+| A-004 | Shopee Ads authentication | Implement Shopee Ads API auth | `src/extractors/shopee_ads.py` | - Reuse Shopee OAuth |
+| A-005 | Shopee Ads extractor | ดึง Shopee Ads performance | `src/extractors/shopee_ads.py` | - Get product ads metrics <br> - Get shop ads metrics |
+| A-006 | Shopee Ads extractor tests | Unit tests | `tests/test_extractors/test_shopee_ads.py` | - Mock API calls <br> - All tests pass |
+| A-007 | Lazada Ads authentication | Implement Lazada Ads API auth | `src/extractors/lazada_ads.py` | - Reuse Lazada OAuth |
+| A-008 | Lazada Ads extractor | ดึง Lazada Sponsored Solutions | `src/extractors/lazada_ads.py` | - Get sponsored products metrics |
+| A-009 | Lazada Ads extractor tests | Unit tests | `tests/test_extractors/test_lazada_ads.py` | - Mock API calls <br> - All tests pass |
 
 **Checklist:**
-- [ ] A-001: Facebook Ads authentication
-- [ ] A-002: Facebook Ads account insights
-- [ ] A-003: Facebook Ads campaign insights
-- [ ] A-004: Facebook Ads adset/ad insights
-- [ ] A-005: Facebook Ads extractor tests
-- [ ] A-006: Google Ads authentication
-- [ ] A-007: Google Ads campaign report
-- [ ] A-008: Google Ads ad group report
-- [ ] A-009: Google Ads keyword report
-- [ ] A-010: Google Ads extractor tests
-- [ ] A-011: TikTok Ads authentication
-- [ ] A-012: TikTok Ads campaign report
-- [ ] A-013: TikTok Ads adgroup/ad report
-- [ ] A-014: TikTok Ads extractor tests
-- [ ] A-015: LINE Ads extractor (optional)
-- [ ] A-016: Shopee Ads extractor (optional)
-- [ ] A-017: Lazada Ads extractor (optional)
+- [ ] A-001: LINE Ads authentication
+- [ ] A-002: LINE Ads campaign extractor
+- [ ] A-003: LINE Ads extractor tests
+- [ ] A-004: Shopee Ads authentication
+- [ ] A-005: Shopee Ads extractor
+- [ ] A-006: Shopee Ads extractor tests
+- [ ] A-007: Lazada Ads authentication
+- [ ] A-008: Lazada Ads extractor
+- [ ] A-009: Lazada Ads extractor tests
 
 ---
 
@@ -327,26 +316,38 @@
 
 ---
 
-### 1.4.3 AI/ML Features
+### 1.4.3 Simple Alerts (Rule-based - MVP)
+
+> **Scope Reduction:** เปลี่ยนจาก AI/ML Models เป็น Rule-based alerts
+> AI/ML Models (Anomaly, Forecaster, Budget Optimizer) ย้ายไป Phase 2
 
 | Task ID | Task Name | Description | Technical Context | Acceptance Criteria |
 |---------|-----------|-------------|-------------------|---------------------|
-| AI-001 | Anomaly detection | ตรวจจับ metrics ที่ผิดปกติ | `src/models/anomaly_detection.py` | - Z-score detection <br> - Flag anomalies in daily_performance |
-| AI-002 | Budget optimizer | แนะนำ budget allocation | `src/models/budget_optimizer.py` | - Based on historical ROAS <br> - Generate recommendations |
-| AI-003 | Performance forecaster | พยากรณ์ 7 วัน | `src/models/forecaster.py` | - Moving average <br> - Trend analysis |
-| AI-004 | AI recommendations pipeline | Pipeline to generate recommendations | `src/pipelines/ai_pipeline.py` | - Run all AI models <br> - Save to mart_ai_recommendations |
-| AI-005 | AI model tests | Unit tests | `tests/test_models/` | - All tests pass |
+| SA-001 | Simple alerts module | สร้าง rule-based alerts | `src/models/simple_alerts.py` | - ROAS < 2 → Alert <br> - Revenue drop > 20% → Alert <br> - CPA > threshold → Alert |
+| SA-002 | Alerts mart SQL | SQL สำหรับ mart_simple_alerts | `sql/transformations/mart/simple_alerts.sql` | - Generate alerts based on rules |
+| SA-003 | Alerts pipeline | Pipeline to generate alerts | `src/pipelines/alerts_pipeline.py` | - Run rules <br> - Save to mart_simple_alerts |
 
 **Checklist:**
-- [ ] AI-001: Anomaly detection
-- [ ] AI-002: Budget optimizer
-- [ ] AI-003: Performance forecaster
-- [ ] AI-004: AI recommendations pipeline
-- [ ] AI-005: AI model tests
+- [ ] SA-001: Simple alerts module
+- [ ] SA-002: Alerts mart SQL
+- [ ] SA-003: Alerts pipeline
 
 ---
 
-## Phase 1.5: Cloud Deployment (Week 8-9)
+### 1.4.4 AI/ML Features (Phase 2 - Future)
+
+> **ย้ายไป Phase 2:**
+
+| Task ID | Task Name | Description | Technical Context |
+|---------|-----------|-------------|-------------------|
+| AI-001 | Anomaly detection | Z-score detection | `src/models/anomaly_detection.py` |
+| AI-002 | Budget optimizer | ML-based budget allocation | `src/models/budget_optimizer.py` |
+| AI-003 | Performance forecaster | Time series forecasting | `src/models/forecaster.py` |
+| AI-004 | AI recommendations pipeline | Generate ML-based recommendations | `src/pipelines/ai_pipeline.py` |
+
+---
+
+## Phase 1.5: Cloud Deployment (MVP)
 
 ### 1.5.1 Cloud Functions
 
@@ -355,38 +356,51 @@
 | C-001 | E-commerce Cloud Function | Deploy e-commerce pipeline | `cloud_functions/etl_ecommerce/` | - Function deployed <br> - Triggered successfully |
 | C-002 | Ads Cloud Function | Deploy ads pipeline | `cloud_functions/etl_ads/` | - Function deployed <br> - Triggered successfully |
 | C-003 | Mart Cloud Function | Deploy mart pipeline | `cloud_functions/etl_mart/` | - Function deployed <br> - Triggered successfully |
-| C-004 | AI Cloud Function | Deploy AI pipeline | `cloud_functions/etl_ai/` | - Function deployed <br> - Triggered successfully |
-| C-005 | Setup Cloud Scheduler | สร้าง scheduled jobs | GCP Console / Terraform | - E-commerce: every 6 hours <br> - Ads: every 6 hours <br> - Mart: after ETL <br> - AI: daily 7 AM |
+| C-004 | Alerts Cloud Function | Deploy simple alerts pipeline | `cloud_functions/etl_alerts/` | - Function deployed <br> - Triggered successfully |
+| C-005 | Setup Cloud Scheduler | สร้าง scheduled jobs | GCP Console | - E-commerce: every 6 hours <br> - Ads: every 6 hours <br> - Mart: after ETL <br> - Alerts: daily 7 AM |
 | C-006 | Deploy script | Script to deploy all functions | `scripts/deploy_functions.sh` | - One command deploy |
 
 **Checklist:**
 - [ ] C-001: E-commerce Cloud Function
 - [ ] C-002: Ads Cloud Function
 - [ ] C-003: Mart Cloud Function
-- [ ] C-004: AI Cloud Function
+- [ ] C-004: Alerts Cloud Function
 - [ ] C-005: Setup Cloud Scheduler
 - [ ] C-006: Deploy script
 
 ---
 
-### 1.5.2 Monitoring & Alerts
+### 1.5.2 Basic Logging (MVP)
+
+> **Scope Reduction:** ใช้ Cloud Logging พื้นฐาน, manual check
+> Automated Monitoring & Alerts ย้ายไป Phase 2
 
 | Task ID | Task Name | Description | Technical Context | Acceptance Criteria |
 |---------|-----------|-------------|-------------------|---------------------|
-| MON-001 | Setup Cloud Logging | Configure logging for all functions | GCP Console | - Logs visible in Cloud Logging |
-| MON-002 | Setup error alerts | Alert on function failures | Cloud Monitoring | - Email/Slack on error |
-| MON-003 | Setup data freshness alert | Alert if data > 12 hours old | Cloud Monitoring | - Alert when stale |
-| MON-004 | Create monitoring dashboard | GCP monitoring dashboard | Cloud Monitoring | - Show function status <br> - Show BigQuery usage |
+| LOG-001 | Setup Cloud Logging | Configure logging for all functions | GCP Console | - Logs visible in Cloud Logging <br> - Manual check process documented |
 
 **Checklist:**
-- [ ] MON-001: Setup Cloud Logging
-- [ ] MON-002: Setup error alerts
-- [ ] MON-003: Setup data freshness alert
-- [ ] MON-004: Create monitoring dashboard
+- [ ] LOG-001: Setup Cloud Logging
 
 ---
 
-## Phase 1.6: Dashboard (Week 9-10)
+### 1.5.3 Monitoring & Alerts (Phase 2 - Future)
+
+> **ย้ายไป Phase 2:**
+
+| Task ID | Task Name | Description | Technical Context |
+|---------|-----------|-------------|-------------------|
+| MON-001 | Setup error alerts | Alert on function failures | Cloud Monitoring |
+| MON-002 | Setup data freshness alert | Alert if data > 12 hours old | Cloud Monitoring |
+| MON-003 | Create monitoring dashboard | GCP monitoring dashboard | Cloud Monitoring |
+| MON-004 | Slack/Email integration | Automated notifications | Cloud Monitoring + Slack |
+
+---
+
+## Phase 1.6: Dashboard (MVP - 5 pages)
+
+> **Scope Reduction:** ลดจาก 9 หน้าเหลือ 5 หน้า
+> Deep Dive pages (Facebook, Google, TikTok) และ AI Insights ย้ายไป Phase 2
 
 ### 1.6.1 Looker Studio Setup
 
@@ -405,110 +419,166 @@
 
 ---
 
-### 1.6.2 Dashboard Pages
+### 1.6.2 Dashboard Pages (MVP - 5 pages)
 
 | Task ID | Task Name | Description | Technical Context | Acceptance Criteria |
 |---------|-----------|-------------|-------------------|---------------------|
-| D-005 | Page 1: Executive Overview | หน้า overview | Looker Studio | - KPI scorecards <br> - Revenue trend chart <br> - Period comparison |
+| D-005 | Page 1: Executive Overview | หน้า overview + simple alerts | Looker Studio | - KPI scorecards <br> - Revenue trend chart <br> - Period comparison <br> - Simple alerts (ROAS < 2, Revenue drop) |
 | D-006 | Page 2: Shop Performance | หน้า shop comparison | Looker Studio | - Shop comparison table <br> - Platform breakdown <br> - Growth metrics |
-| D-007 | Page 3: Ads Overview | หน้า ads summary | Looker Studio | - Spend by platform <br> - ROAS comparison <br> - CTR/CPA metrics |
-| D-008 | Page 4: Facebook Deep Dive | หน้า Facebook Ads | Looker Studio | - Campaign table <br> - Audience breakdown <br> - Funnel chart |
-| D-009 | Page 5: Google Deep Dive | หน้า Google Ads | Looker Studio | - Campaign type breakdown <br> - Keyword table <br> - Quality score |
-| D-010 | Page 6: TikTok & Others | หน้า TikTok และอื่นๆ | Looker Studio | - TikTok metrics <br> - Video engagement <br> - Other platforms |
-| D-011 | Page 7: Product Analytics | หน้า product analysis | Looker Studio | - Top products table <br> - Category breakdown <br> - Platform comparison |
-| D-012 | Page 8: Website Analytics (GA4) | หน้า GA4 website analytics | Looker Studio | - Sessions & users trend <br> - Traffic sources breakdown <br> - Top pages table <br> - Conversion funnel |
-| D-013 | Page 9: AI Insights | หน้า AI recommendations | Looker Studio | - Recommendations list <br> - Anomaly alerts <br> - Predictions chart |
+| D-007 | Page 3: Ads Performance Overview | หน้า ads summary (รวมทุก platform) | Looker Studio | - Spend by platform <br> - ROAS comparison <br> - Campaign table (all platforms) <br> - Performance flags (Poor/OK/Good) |
+| D-008 | Page 4: Product Analytics | หน้า product analysis | Looker Studio | - Top products table <br> - Category breakdown <br> - Platform comparison |
+| D-009 | Page 5: Website Analytics (GA4 Basic) | หน้า GA4 พื้นฐาน | Looker Studio | - Sessions & users trend <br> - Traffic sources breakdown <br> - Top pages table <br> - Basic conversion metrics |
 
 **Checklist:**
 - [ ] D-005: Page 1: Executive Overview
 - [ ] D-006: Page 2: Shop Performance
-- [ ] D-007: Page 3: Ads Overview
-- [ ] D-008: Page 4: Facebook Deep Dive
-- [ ] D-009: Page 5: Google Deep Dive
-- [ ] D-010: Page 6: TikTok & Others
-- [ ] D-011: Page 7: Product Analytics
-- [ ] D-012: Page 8: Website Analytics (GA4)
-- [ ] D-013: Page 9: AI Insights
+- [ ] D-007: Page 3: Ads Performance Overview
+- [ ] D-008: Page 4: Product Analytics
+- [ ] D-009: Page 5: Website Analytics (GA4 Basic)
 
 ---
 
-### 1.6.3 Dashboard Polish
+### 1.6.3 Dashboard Pages (Phase 2 - Future)
+
+> **ย้ายไป Phase 2:**
+
+| Task ID | Task Name | Description | Technical Context |
+|---------|-----------|-------------|-------------------|
+| D-010 | Page 6: Facebook Deep Dive | Campaign, Audience, Funnel | Looker Studio |
+| D-011 | Page 7: Google Deep Dive | Campaign types, Keywords, Quality Score | Looker Studio |
+| D-012 | Page 8: TikTok & Others Deep Dive | TikTok, LINE, Marketplace Ads | Looker Studio |
+| D-013 | Page 9: AI Insights | ML Recommendations, Predictions | Looker Studio |
+
+---
+
+### 1.6.4 Dashboard Polish (MVP)
 
 | Task ID | Task Name | Description | Technical Context | Acceptance Criteria |
 |---------|-----------|-------------|-------------------|---------------------|
 | D-014 | Apply consistent styling | สร้าง theme และ styling | Looker Studio | - Consistent colors <br> - Professional look |
-| D-015 | Add tooltips & labels | เพิ่ม tooltips อธิบาย metrics | Looker Studio | - All metrics have tooltips |
-| D-016 | Mobile responsiveness | ปรับให้ดูบน mobile ได้ | Looker Studio | - Readable on mobile |
-| D-017 | Performance optimization | Optimize query performance | Looker Studio / BigQuery | - Load time < 3 seconds |
+| D-015 | Basic performance check | ตรวจสอบ query performance | Looker Studio / BigQuery | - Load time acceptable |
 
 **Checklist:**
 - [ ] D-014: Apply consistent styling
-- [ ] D-015: Add tooltips & labels
-- [ ] D-016: Mobile responsiveness
-- [ ] D-017: Performance optimization
+- [ ] D-015: Basic performance check
 
 ---
 
-## Phase 1.7: Testing & Documentation (Week 10)
+### 1.6.5 Dashboard Polish (Phase 2 - Future)
 
-### 1.7.1 Testing
+> **ย้ายไป Phase 2:**
+
+| Task ID | Task Name | Description | Technical Context |
+|---------|-----------|-------------|-------------------|
+| D-016 | Add tooltips & labels | เพิ่ม tooltips อธิบาย metrics | Looker Studio |
+| D-017 | Mobile responsiveness | ปรับให้ดูบน mobile ได้ | Looker Studio |
+| D-018 | Performance optimization | Optimize query performance | Looker Studio / BigQuery |
+
+---
+
+## Phase 1.7: Testing & Documentation (MVP)
+
+> **Scope Reduction:** เน้น critical path testing, ลด comprehensive testing ไป Phase 2
+
+### 1.7.1 Testing (MVP - Critical Paths Only)
 
 | Task ID | Task Name | Description | Technical Context | Acceptance Criteria |
 |---------|-----------|-------------|-------------------|---------------------|
 | TEST-001 | End-to-end testing | ทดสอบ full pipeline | Test environment | - Data flows correctly <br> - Dashboard shows data |
 | TEST-002 | Data validation | ตรวจสอบความถูกต้องของข้อมูล | BigQuery | - Spot check with source <br> - No duplicates |
-| TEST-003 | Performance testing | ทดสอบ performance | All components | - ETL completes in time <br> - Dashboard loads fast |
-| TEST-004 | Error handling testing | ทดสอบ error scenarios | All components | - Graceful error handling <br> - Alerts work |
 
 **Checklist:**
 - [ ] TEST-001: End-to-end testing
 - [ ] TEST-002: Data validation
-- [ ] TEST-003: Performance testing
-- [ ] TEST-004: Error handling testing
 
 ---
 
-### 1.7.2 Documentation
+### 1.7.2 Testing (Phase 2 - Future)
+
+> **ย้ายไป Phase 2:**
+
+| Task ID | Task Name | Description | Technical Context |
+|---------|-----------|-------------|-------------------|
+| TEST-003 | Performance testing | ทดสอบ performance | All components |
+| TEST-004 | Error handling testing | ทดสอบ error scenarios | All components |
+| TEST-005 | Unit tests (100% coverage) | Comprehensive unit tests | All modules |
+
+---
+
+### 1.7.3 Documentation (MVP - Essential Only)
 
 | Task ID | Task Name | Description | Technical Context | Acceptance Criteria |
 |---------|-----------|-------------|-------------------|---------------------|
 | DOC-001 | README.md | Project overview และ setup instructions | `README.md` | - Clear setup steps <br> - Architecture overview |
 | DOC-002 | API credentials guide | วิธีการขอ API credentials | `.docs/api_credentials.md` | - Step-by-step for each platform |
-| DOC-003 | Dashboard user guide | วิธีใช้งาน dashboard | `.docs/user_guide.md` | - Feature walkthrough |
-| DOC-004 | Troubleshooting guide | วิธีแก้ปัญหาที่พบบ่อย | `.docs/troubleshooting.md` | - Common issues & solutions |
-| DOC-005 | Runbook | Operations runbook | `.docs/runbook.md` | - How to monitor <br> - How to fix issues |
+| DOC-003 | Basic runbook | วิธี deploy และ check logs | `.docs/runbook.md` | - How to deploy <br> - How to check logs |
 
 **Checklist:**
 - [ ] DOC-001: README.md
 - [ ] DOC-002: API credentials guide
-- [ ] DOC-003: Dashboard user guide
-- [ ] DOC-004: Troubleshooting guide
-- [ ] DOC-005: Runbook
+- [ ] DOC-003: Basic runbook
+
+---
+
+### 1.7.4 Documentation (Phase 2 - Future)
+
+> **ย้ายไป Phase 2:**
+
+| Task ID | Task Name | Description | Technical Context |
+|---------|-----------|-------------|-------------------|
+| DOC-004 | Dashboard user guide | วิธีใช้งาน dashboard | `.docs/user_guide.md` |
+| DOC-005 | Troubleshooting guide | วิธีแก้ปัญหาที่พบบ่อย | `.docs/troubleshooting.md` |
+| DOC-006 | Comprehensive runbook | Full operations runbook | `.docs/runbook.md` |
 
 ---
 
 ## Summary
 
-### Task Count by Phase
+### Task Count by Phase (MVP)
 
-| Phase | Tasks | Status |
-|-------|-------|--------|
-| 1.1 Foundation (incl. Airbyte) | 27 | Pending |
-| 1.2 Extractors | 29 | Pending |
-| 1.3 Transformers & Loaders (incl. GA4) | 25 | Pending |
-| 1.4 Pipelines & Mart | 16 | Pending |
-| 1.5 Cloud Deployment | 10 | Pending |
-| 1.6 Dashboard (incl. GA4 page) | 17 | Pending |
-| 1.7 Testing & Documentation | 9 | Pending |
-| **Total** | **133** | **Pending** |
+| Phase | MVP Tasks | Phase 2 Tasks | Status |
+|-------|-----------|---------------|--------|
+| 1.1 Foundation (incl. Airbyte) | 28 | 0 | Pending |
+| 1.2 Extractors | 21 | 0 | Pending |
+| 1.3 Transformers & Loaders (incl. GA4) | 25 | 0 | Pending |
+| 1.4 Pipelines & Mart & Simple Alerts | 14 | 4 (AI/ML) | Pending |
+| 1.5 Cloud Deployment & Logging | 7 | 4 (Monitoring) | Pending |
+| 1.6 Dashboard (5 pages MVP) | 11 | 7 (Deep Dive) | Pending |
+| 1.7 Testing & Documentation | 5 | 6 (Comprehensive) | Pending |
+| **Total MVP** | **111** | - | **Pending** |
+| **Total Phase 2** | - | **21** | **Future** |
+
+> **Scope Reduction Summary:**
+> - Tasks ลดลงจาก 126 → **111 tasks** (MVP)
+> - Dashboard: 9 → 5 หน้า
+> - AI/ML: Statistical models → Rule-based (3 tasks แทน 5)
+> - Monitoring: Automated → Manual (1 task แทน 4)
+> - Testing: 100% coverage → Critical paths (2 tasks แทน 4)
+> - Documentation: Full → Essential (3 tasks แทน 5)
 
 ### Priority Order
 
-1. **Critical Path:** F-001 → G-001 → AB-001 → B-001 → E-001 → T-001 → L-001 → P-001 → M-001 → C-001 → D-001
+1. **Critical Path:** F-001 → G-001 → AB-001 → B-001 → E-001 → T-001 → L-001 → P-001 → M-001 → SA-001 → C-001 → D-001
 2. **Dependencies:** ทำตาม Phase order (1.1 → 1.2 → 1.3 → 1.4 → 1.5 → 1.6 → 1.7)
 3. **Parallelizable:**
-   - Extractors สามารถทำ parallel ได้ (Shopee, Lazada, TikTok ทำพร้อมกัน)
-   - Airbyte setup (AB-003, AB-004, AB-005) สามารถทำ parallel ได้
+   - E-commerce extractors: Shopee, Lazada, TikTok Shop ทำ parallel ได้
+   - Airbyte setup (AB-003, AB-004, AB-005, AB-006) สามารถทำ parallel ได้
+   - Ads extractors: LINE, Shopee Ads, Lazada Ads ทำ parallel ได้
+
+---
+
+## Phase 2 Summary (Future)
+
+> **สิ่งที่ย้ายไป Phase 2:**
+
+| Category | Tasks |
+|----------|-------|
+| Dashboard Deep Dives | D-010, D-011, D-012, D-013 (Facebook, Google, TikTok, AI) |
+| Dashboard Polish | D-016, D-017, D-018 (Tooltips, Mobile, Performance) |
+| AI/ML Models | AI-001, AI-002, AI-003, AI-004 (Anomaly, Optimizer, Forecaster) |
+| Monitoring & Alerts | MON-001, MON-002, MON-003, MON-004 (Cloud Monitoring, Slack) |
+| Testing | TEST-003, TEST-004, TEST-005 (Performance, Error, Unit tests) |
+| Documentation | DOC-004, DOC-005, DOC-006 (User guide, Troubleshooting) |
 
 ---
 
@@ -517,4 +587,6 @@
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
 | 1.0 | Dec 2025 | - | Initial task breakdown |
-| 1.1 | Dec 2025 | - | Added Airbyte setup tasks (AB-001 to AB-008), GA4 transformers (T-012 to T-015), GA4 dashboard page |
+| 1.1 | Dec 2025 | - | Added Airbyte setup tasks, GA4 transformers, GA4 dashboard page |
+| 1.2 | Dec 2025 | - | TikTok Ads moved to Airbyte (AB-006), removed Python TikTok Ads tasks (A-011 to A-014), reduced total to 126 tasks |
+| 1.3 | Dec 2025 | - | **MVP Scope Reduction:** 126 → 111 tasks, Dashboard 9→5, ML→Rule-based, ย้าย Monitoring/Deep Dive/AI ไป Phase 2 |
