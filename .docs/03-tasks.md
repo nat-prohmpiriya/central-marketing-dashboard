@@ -64,7 +64,7 @@
 
 ---
 
-### [ ]  1.1.3 Base Classes
+### [x]  1.1.3 Base Classes
 
 | Task ID | Task Name | Description | Technical Context | Acceptance Criteria |
 |---------|-----------|-------------|-------------------|---------------------|
@@ -76,12 +76,12 @@
 | B-006 | Write unit tests for base classes | Tests สำหรับ base classes | `tests/test_base.py` | - All tests pass <br> - Coverage > 80% |
 
 **Checklist:**
-- [ ] B-001: Create BaseExtractor class
-- [ ] B-002: Create BaseTransformer class
-- [ ] B-003: Create BaseLoader class
-- [ ] B-004: Create BigQuery loader
-- [ ] B-005: Create utility functions
-- [ ] B-006: Write unit tests for base classes
+- [x] B-001: Create BaseExtractor class
+- [x] B-002: Create BaseTransformer class
+- [x] B-003: Create BaseLoader class
+- [x] B-004: Create BigQuery loader
+- [x] B-005: Create utility functions
+- [x] B-006: Write unit tests for base classes (45 tests passing)
 
 ---
 
