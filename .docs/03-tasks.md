@@ -46,11 +46,12 @@
 | Task ID | Task Name | Description | Technical Context | Acceptance Criteria |
 |---------|-----------|-------------|-------------------|---------------------|
 | G-001 | Create GCP project | สร้าง Google Cloud Project | GCP Console | - Project created <br> - Billing enabled |
-| G-002 | Enable required APIs | Enable BigQuery, Cloud Functions, etc. | GCP Console | - BigQuery API enabled <br> - Cloud Functions enabled <br> - Cloud Scheduler enabled <br> - Secret Manager enabled |
+| G-002 | Enable required APIs | Enable BigQuery, Cloud Functions, etc. | GCP Console | - BigQuery API enabled <br> - Cloud Functions enabled <br> - Cloud Scheduler enabled <br> - Secret Manager enabled <br> - Cloud Storage enabled |
 | G-003 | Create service account | สร้าง service account สำหรับ ETL | IAM & Admin | - Service account created <br> - JSON key downloaded <br> - Key stored securely |
 | G-004 | Setup BigQuery datasets | สร้าง datasets: raw, staging, mart | BigQuery Console / `scripts/setup_bigquery.py` | - 3 datasets created <br> - Proper permissions set |
 | G-005 | Setup Secret Manager | สร้าง secrets สำหรับ API credentials | Secret Manager | - Secrets created for each platform <br> - Service account has access |
-| G-006 | Create setup script | Script สำหรับ initialize BigQuery | `scripts/setup_bigquery.py` | - Script runs without error <br> - Creates all datasets and tables |
+| G-006 | Create GCS staging bucket | สร้าง bucket สำหรับ Airbyte staging | Cloud Storage | - Bucket created <br> - Service account has access |
+| G-007 | Create setup script | Script สำหรับ initialize BigQuery | `scripts/setup_bigquery.py` | - Script runs without error <br> - Creates all datasets and tables |
 
 **Checklist:**
 - [ ] G-001: Create GCP project
@@ -58,11 +59,37 @@
 - [ ] G-003: Create service account
 - [ ] G-004: Setup BigQuery datasets
 - [ ] G-005: Setup Secret Manager
-- [ ] G-006: Create setup script
+- [ ] G-006: Create GCS staging bucket
+- [ ] G-007: Create setup script
 
 ---
 
-### 1.1.3 Base Classes
+### 1.1.3 Airbyte Setup
+
+| Task ID | Task Name | Description | Technical Context | Acceptance Criteria |
+|---------|-----------|-------------|-------------------|---------------------|
+| AB-001 | Setup Airbyte Cloud account | สมัคร Airbyte Cloud หรือ deploy self-hosted | Airbyte Cloud / Docker | - Account created <br> - Can access UI |
+| AB-002 | Configure BigQuery destination | เชื่อม Airbyte กับ BigQuery | Airbyte UI | - Connection successful <br> - Test sync works |
+| AB-003 | Setup Facebook Ads source | Configure Facebook Marketing connector | Airbyte UI, `airbyte/connections/facebook_ads.yaml` | - Auth successful <br> - Test sync works |
+| AB-004 | Setup Google Ads source | Configure Google Ads connector | Airbyte UI, `airbyte/connections/google_ads.yaml` | - Auth successful <br> - Test sync works |
+| AB-005 | Setup GA4 source | Configure Google Analytics 4 connector | Airbyte UI, `airbyte/connections/ga4.yaml` | - Auth successful <br> - Test sync works |
+| AB-006 | Configure sync schedules | ตั้ง schedule สำหรับทุก connection | Airbyte UI | - Schedules set (every 6 hours) |
+| AB-007 | Test full sync | ทดสอบ sync ข้อมูลจริง | Airbyte UI, BigQuery | - Data appears in BigQuery <br> - Schema correct |
+| AB-008 | Document Airbyte setup | เขียน documentation | `airbyte/README.md` | - Setup steps documented |
+
+**Checklist:**
+- [ ] AB-001: Setup Airbyte Cloud account
+- [ ] AB-002: Configure BigQuery destination
+- [ ] AB-003: Setup Facebook Ads source
+- [ ] AB-004: Setup Google Ads source
+- [ ] AB-005: Setup GA4 source
+- [ ] AB-006: Configure sync schedules
+- [ ] AB-007: Test full sync
+- [ ] AB-008: Document Airbyte setup
+
+---
+
+### 1.1.4 Base Classes
 
 | Task ID | Task Name | Description | Technical Context | Acceptance Criteria |
 |---------|-----------|-------------|-------------------|---------------------|
@@ -203,24 +230,41 @@
 
 ---
 
-### 1.3.3 Product & SKU Mapping
+### 1.3.3 GA4 Transformers
 
 | Task ID | Task Name | Description | Technical Context | Acceptance Criteria |
 |---------|-----------|-------------|-------------------|---------------------|
-| T-012 | Product transformer | Transform product data | `src/transformers/products.py` | - Unified product schema |
-| T-013 | SKU mapper | Map SKUs across platforms | `src/transformers/sku_mapper.py` | - Load mapping from CSV <br> - Handle unmapped SKUs |
-| T-014 | SKU mapping CSV template | สร้าง template สำหรับ SKU mapping | `config/sku_mapping.csv` | - Template with examples |
-| T-015 | Product transformer tests | Unit tests | `tests/test_transformers/test_products.py` | - All tests pass |
+| T-012 | GA4 sessions transformer | Transform raw GA4 events to sessions | `src/transformers/ga4.py` | - Aggregate events by session <br> - Calculate session duration |
+| T-013 | GA4 traffic transformer | Transform to traffic summary | `src/transformers/ga4.py` | - Aggregate by source/medium <br> - Calculate channel grouping |
+| T-014 | GA4 pages transformer | Transform to page performance | `src/transformers/ga4.py` | - Aggregate by page path <br> - Calculate metrics |
+| T-015 | GA4 transformer tests | Unit tests | `tests/test_transformers/test_ga4.py` | - All tests pass |
 
 **Checklist:**
-- [ ] T-012: Product transformer
-- [ ] T-013: SKU mapper
-- [ ] T-014: SKU mapping CSV template
-- [ ] T-015: Product transformer tests
+- [ ] T-012: GA4 sessions transformer
+- [ ] T-013: GA4 traffic transformer
+- [ ] T-014: GA4 pages transformer
+- [ ] T-015: GA4 transformer tests
 
 ---
 
-### 1.3.4 BigQuery Schemas & Loading
+### 1.3.4 Product & SKU Mapping
+
+| Task ID | Task Name | Description | Technical Context | Acceptance Criteria |
+|---------|-----------|-------------|-------------------|---------------------|
+| T-016 | Product transformer | Transform product data | `src/transformers/products.py` | - Unified product schema |
+| T-017 | SKU mapper | Map SKUs across platforms | `src/transformers/sku_mapper.py` | - Load mapping from CSV <br> - Handle unmapped SKUs |
+| T-018 | SKU mapping CSV template | สร้าง template สำหรับ SKU mapping | `config/sku_mapping.csv` | - Template with examples |
+| T-019 | Product transformer tests | Unit tests | `tests/test_transformers/test_products.py` | - All tests pass |
+
+**Checklist:**
+- [ ] T-016: Product transformer
+- [ ] T-017: SKU mapper
+- [ ] T-018: SKU mapping CSV template
+- [ ] T-019: Product transformer tests
+
+---
+
+### 1.3.5 BigQuery Schemas & Loading
 
 | Task ID | Task Name | Description | Technical Context | Acceptance Criteria |
 |---------|-----------|-------------|-------------------|---------------------|
@@ -372,7 +416,8 @@
 | D-009 | Page 5: Google Deep Dive | หน้า Google Ads | Looker Studio | - Campaign type breakdown <br> - Keyword table <br> - Quality score |
 | D-010 | Page 6: TikTok & Others | หน้า TikTok และอื่นๆ | Looker Studio | - TikTok metrics <br> - Video engagement <br> - Other platforms |
 | D-011 | Page 7: Product Analytics | หน้า product analysis | Looker Studio | - Top products table <br> - Category breakdown <br> - Platform comparison |
-| D-012 | Page 8: AI Insights | หน้า AI recommendations | Looker Studio | - Recommendations list <br> - Anomaly alerts <br> - Predictions chart |
+| D-012 | Page 8: Website Analytics (GA4) | หน้า GA4 website analytics | Looker Studio | - Sessions & users trend <br> - Traffic sources breakdown <br> - Top pages table <br> - Conversion funnel |
+| D-013 | Page 9: AI Insights | หน้า AI recommendations | Looker Studio | - Recommendations list <br> - Anomaly alerts <br> - Predictions chart |
 
 **Checklist:**
 - [ ] D-005: Page 1: Executive Overview
@@ -382,7 +427,8 @@
 - [ ] D-009: Page 5: Google Deep Dive
 - [ ] D-010: Page 6: TikTok & Others
 - [ ] D-011: Page 7: Product Analytics
-- [ ] D-012: Page 8: AI Insights
+- [ ] D-012: Page 8: Website Analytics (GA4)
+- [ ] D-013: Page 9: AI Insights
 
 ---
 
@@ -390,16 +436,16 @@
 
 | Task ID | Task Name | Description | Technical Context | Acceptance Criteria |
 |---------|-----------|-------------|-------------------|---------------------|
-| D-013 | Apply consistent styling | สร้าง theme และ styling | Looker Studio | - Consistent colors <br> - Professional look |
-| D-014 | Add tooltips & labels | เพิ่ม tooltips อธิบาย metrics | Looker Studio | - All metrics have tooltips |
-| D-015 | Mobile responsiveness | ปรับให้ดูบน mobile ได้ | Looker Studio | - Readable on mobile |
-| D-016 | Performance optimization | Optimize query performance | Looker Studio / BigQuery | - Load time < 3 seconds |
+| D-014 | Apply consistent styling | สร้าง theme และ styling | Looker Studio | - Consistent colors <br> - Professional look |
+| D-015 | Add tooltips & labels | เพิ่ม tooltips อธิบาย metrics | Looker Studio | - All metrics have tooltips |
+| D-016 | Mobile responsiveness | ปรับให้ดูบน mobile ได้ | Looker Studio | - Readable on mobile |
+| D-017 | Performance optimization | Optimize query performance | Looker Studio / BigQuery | - Load time < 3 seconds |
 
 **Checklist:**
-- [ ] D-013: Apply consistent styling
-- [ ] D-014: Add tooltips & labels
-- [ ] D-015: Mobile responsiveness
-- [ ] D-016: Performance optimization
+- [ ] D-014: Apply consistent styling
+- [ ] D-015: Add tooltips & labels
+- [ ] D-016: Mobile responsiveness
+- [ ] D-017: Performance optimization
 
 ---
 
@@ -447,20 +493,22 @@
 
 | Phase | Tasks | Status |
 |-------|-------|--------|
-| 1.1 Foundation | 18 | Pending |
+| 1.1 Foundation (incl. Airbyte) | 27 | Pending |
 | 1.2 Extractors | 29 | Pending |
-| 1.3 Transformers & Loaders | 22 | Pending |
+| 1.3 Transformers & Loaders (incl. GA4) | 25 | Pending |
 | 1.4 Pipelines & Mart | 16 | Pending |
 | 1.5 Cloud Deployment | 10 | Pending |
-| 1.6 Dashboard | 16 | Pending |
+| 1.6 Dashboard (incl. GA4 page) | 17 | Pending |
 | 1.7 Testing & Documentation | 9 | Pending |
-| **Total** | **120** | **Pending** |
+| **Total** | **133** | **Pending** |
 
 ### Priority Order
 
-1. **Critical Path:** F-001 → G-001 → B-001 → E-001 → T-001 → L-001 → P-001 → M-001 → C-001 → D-001
+1. **Critical Path:** F-001 → G-001 → AB-001 → B-001 → E-001 → T-001 → L-001 → P-001 → M-001 → C-001 → D-001
 2. **Dependencies:** ทำตาม Phase order (1.1 → 1.2 → 1.3 → 1.4 → 1.5 → 1.6 → 1.7)
-3. **Parallelizable:** Extractors สามารถทำ parallel ได้ (Shopee, Lazada, TikTok ทำพร้อมกัน)
+3. **Parallelizable:**
+   - Extractors สามารถทำ parallel ได้ (Shopee, Lazada, TikTok ทำพร้อมกัน)
+   - Airbyte setup (AB-003, AB-004, AB-005) สามารถทำ parallel ได้
 
 ---
 
@@ -469,3 +517,4 @@
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
 | 1.0 | Dec 2025 | - | Initial task breakdown |
+| 1.1 | Dec 2025 | - | Added Airbyte setup tasks (AB-001 to AB-008), GA4 transformers (T-012 to T-015), GA4 dashboard page |

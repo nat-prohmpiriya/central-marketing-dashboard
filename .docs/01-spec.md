@@ -61,6 +61,12 @@
 | **Shopee Ads** | Shopee Ads API | Product Ads, Shop Ads | In-platform advertising |
 | **Lazada Ads** | Lazada Sponsored Solutions | Product Ads, Display | In-platform advertising |
 
+### Analytics Platforms (Supported)
+
+| Platform | API Support | Data Available | Notes |
+|----------|-------------|----------------|-------|
+| **Google Analytics 4** | GA4 Data API | Sessions, Users, Conversions, Events, Traffic sources | Requires GCP project |
+
 ### Configuration Required
 - [ ] ระบุ platforms ที่ลูกค้าใช้จริง
 - [ ] ระบุจำนวนร้านต่อ platform
@@ -201,7 +207,7 @@
 
 ## 3. Core Features (Phase 1)
 
-### 3.1 Dashboard Pages (8 หน้า)
+### 3.1 Dashboard Pages (9 หน้า)
 
 #### Page 1: Executive Overview
 **Purpose:** ให้ผู้บริหารเห็นภาพรวมธุรกิจในหน้าเดียว
@@ -292,7 +298,22 @@
 
 ---
 
-#### Page 8: AI Insights & Recommendations
+#### Page 8: Website Analytics (GA4)
+**Purpose:** วิเคราะห์ traffic และ user behavior จาก Google Analytics 4
+
+**Key Elements:**
+- Sessions & Users overview
+- Traffic sources breakdown (Organic, Paid, Direct, Social, Referral)
+- Top landing pages
+- Conversion funnel (Sessions → Add to Cart → Checkout → Purchase)
+- Device & Browser breakdown
+- Geographic distribution
+- User engagement metrics (Bounce rate, Session duration, Pages per session)
+- Campaign performance (UTM tracking)
+
+---
+
+#### Page 9: AI Insights & Recommendations
 **Purpose:** AI-driven insights และ recommendations
 
 **Key Elements:**
@@ -301,16 +322,41 @@
 - Performance predictions (next 7 days)
 - Underperforming campaign alerts
 - Action recommendations with expected impact
+- Cross-channel attribution insights (Ads → GA4 → E-commerce)
 
 ---
 
 ### 3.2 Data Pipeline (Phase 1)
 
+**ETL Strategy: Hybrid Approach (Airbyte + Python)**
+
+| Data Source | ETL Tool | Reason |
+|-------------|----------|--------|
+| Facebook Ads | Airbyte | มี connector สำเร็จรูป |
+| Google Ads | Airbyte | มี connector สำเร็จรูป |
+| Google Analytics 4 | Airbyte | มี connector สำเร็จรูป |
+| TikTok Ads | Python | ไม่มี official Airbyte connector |
+| Shopee | Python | ไม่มี Airbyte connector |
+| Lazada | Python | ไม่มี Airbyte connector |
+| TikTok Shop | Python | ไม่มี Airbyte connector |
+| LINE Ads | Python | ไม่มี Airbyte connector |
+| Shopee Ads | Python | ไม่มี Airbyte connector |
+| Lazada Ads | Python | ไม่มี Airbyte connector |
+
 **Data Flow:**
 ```
-[E-commerce APIs] ──┐
-[Ads APIs]       ───┼──> [Python ETL Scripts] ──> [BigQuery] ──> [Looker Studio]
-[CSV Uploads]    ───┘
+                    ┌─────────────┐
+[Facebook Ads] ────►│             │
+[Google Ads]   ────►│   Airbyte   │────┐
+[GA4]          ────►│             │    │
+                    └─────────────┘    │
+                                       ▼
+[Shopee]       ────►┌─────────────┐  ┌─────────────┐   ┌───────────────┐
+[Lazada]       ────►│   Python    │─►│  BigQuery   │──►│ Looker Studio │
+[TikTok Shop]  ────►│   Scripts   │  │             │   │               │
+[TikTok Ads]   ────►│             │  └─────────────┘   └───────────────┘
+[LINE Ads]     ────►└─────────────┘
+[CSV Uploads]  ────►
 ```
 
 **Update Frequency:**

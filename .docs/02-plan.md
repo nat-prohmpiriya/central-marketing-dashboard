@@ -16,85 +16,112 @@
 ### 1.1 High-Level Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                              DATA SOURCES                                    │
-├─────────────────────────────────────────────────────────────────────────────┤
-│  E-commerce Platforms          │  Advertising Platforms                     │
-│  ┌─────────┐ ┌─────────┐       │  ┌─────────┐ ┌─────────┐ ┌─────────┐      │
-│  │ Shopee  │ │ Lazada  │       │  │Facebook │ │ Google  │ │ TikTok  │      │
-│  │   API   │ │   API   │       │  │Ads API  │ │Ads API  │ │Ads API  │      │
-│  └────┬────┘ └────┬────┘       │  └────┬────┘ └────┬────┘ └────┬────┘      │
-│       │           │            │       │           │           │            │
-│  ┌────┴────┐ ┌────┴────┐       │  ┌────┴────┐ ┌────┴────┐ ┌────┴────┐      │
-│  │ TikTok  │ │  LINE   │       │  │  LINE   │ │ Shopee  │ │ Lazada  │      │
-│  │Shop API │ │Shop API │       │  │Ads API  │ │Ads API  │ │Ads API  │      │
-│  └────┬────┘ └────┬────┘       │  └────┬────┘ └────┬────┘ └────┬────┘      │
-└───────┼───────────┼────────────┴───────┼───────────┼───────────┼───────────┘
-        │           │                    │           │           │
-        ▼           ▼                    ▼           ▼           ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                           ETL LAYER (Python)                                 │
-├─────────────────────────────────────────────────────────────────────────────┤
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐              │
-│  │    Extractors   │  │  Transformers   │  │     Loaders     │              │
-│  │  (API Clients)  │──▶│ (Data Cleaning) │──▶│  (BigQuery)    │              │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘              │
-│                                                                              │
-│  ┌─────────────────┐  ┌─────────────────┐                                   │
-│  │   Schedulers    │  │  Error Handling │                                   │
-│  │(Cloud Scheduler)│  │   & Logging     │                                   │
-│  └─────────────────┘  └─────────────────┘                                   │
-└─────────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                        DATA WAREHOUSE (BigQuery)                             │
-├─────────────────────────────────────────────────────────────────────────────┤
-│  ┌─────────────────────────────────────────────────────────────────────┐    │
-│  │                         RAW LAYER (raw_*)                           │    │
-│  │  raw_shopee_orders │ raw_lazada_orders │ raw_facebook_ads │ ...    │    │
-│  └─────────────────────────────────────────────────────────────────────┘    │
-│                                    │                                         │
-│                                    ▼                                         │
-│  ┌─────────────────────────────────────────────────────────────────────┐    │
-│  │                      STAGING LAYER (stg_*)                          │    │
-│  │  stg_orders │ stg_products │ stg_ads_performance │ stg_shops        │    │
-│  └─────────────────────────────────────────────────────────────────────┘    │
-│                                    │                                         │
-│                                    ▼                                         │
-│  ┌─────────────────────────────────────────────────────────────────────┐    │
-│  │                        MART LAYER (mart_*)                          │    │
-│  │  mart_daily_performance │ mart_shop_metrics │ mart_product_sales    │    │
-│  │  mart_ads_summary │ mart_ai_recommendations                         │    │
-│  └─────────────────────────────────────────────────────────────────────┘    │
-└─────────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                       VISUALIZATION (Looker Studio)                          │
-├─────────────────────────────────────────────────────────────────────────────┤
-│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐          │
-│  │Executive │ │  Shop    │ │   Ads    │ │ Facebook │ │  Google  │          │
-│  │ Overview │ │Performance│ │ Overview │ │Deep Dive │ │Deep Dive │          │
-│  └──────────┘ └──────────┘ └──────────┘ └──────────┘ └──────────┘          │
-│  ┌──────────┐ ┌──────────┐ ┌──────────┐                                     │
-│  │  TikTok  │ │ Product  │ │   AI     │                                     │
-│  │Deep Dive │ │Analytics │ │ Insights │                                     │
-│  └──────────┘ └──────────┘ └──────────┘                                     │
-└─────────────────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                                 DATA SOURCES                                     │
+├──────────────────────────┬──────────────────────────┬───────────────────────────┤
+│   E-commerce Platforms   │   Advertising Platforms  │   Analytics Platforms     │
+│  ┌────────┐ ┌────────┐   │  ┌────────┐ ┌────────┐   │  ┌─────────────────────┐  │
+│  │ Shopee │ │ Lazada │   │  │Facebook│ │ Google │   │  │ Google Analytics 4 │  │
+│  └───┬────┘ └───┬────┘   │  │  Ads   │ │  Ads   │   │  │       (GA4)         │  │
+│      │          │        │  └───┬────┘ └───┬────┘   │  └──────────┬──────────┘  │
+│  ┌───┴────┐ ┌───┴────┐   │  ┌───┴────┐ ┌───┴────┐   │             │             │
+│  │ TikTok │ │  LINE  │   │  │ TikTok │ │  LINE  │   │             │             │
+│  │  Shop  │ │  Shop  │   │  │  Ads   │ │  Ads   │   │             │             │
+│  └───┬────┘ └───┬────┘   │  └───┬────┘ └───┬────┘   │             │             │
+└──────┼──────────┼────────┴──────┼──────────┼────────┴─────────────┼─────────────┘
+       │          │               │          │                      │
+       ▼          ▼               ▼          ▼                      ▼
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                        ETL LAYER (Hybrid: Airbyte + Python)                      │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                  │
+│  ┌───────────────────────────────┐    ┌───────────────────────────────┐         │
+│  │         AIRBYTE               │    │         PYTHON SCRIPTS        │         │
+│  │  (Pre-built Connectors)       │    │    (Custom Extractors)        │         │
+│  ├───────────────────────────────┤    ├───────────────────────────────┤         │
+│  │  • Facebook Ads               │    │  • Shopee Orders/Products     │         │
+│  │  • Google Ads                 │    │  • Lazada Orders/Products     │         │
+│  │  • Google Analytics 4         │    │  • TikTok Shop                │         │
+│  │                               │    │  • TikTok Ads                 │         │
+│  │                               │    │  • LINE Ads                   │         │
+│  │                               │    │  • Shopee/Lazada Ads          │         │
+│  └───────────────┬───────────────┘    └───────────────┬───────────────┘         │
+│                  │                                    │                          │
+│                  └────────────────┬───────────────────┘                          │
+│                                   ▼                                              │
+│                    ┌─────────────────────────────┐                               │
+│                    │     Transformers (Python)   │                               │
+│                    │   • Data Cleaning           │                               │
+│                    │   • Normalization           │                               │
+│                    │   • SKU Mapping             │                               │
+│                    └─────────────────────────────┘                               │
+└─────────────────────────────────────────────────────────────────────────────────┘
+                                        │
+                                        ▼
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                          DATA WAREHOUSE (BigQuery)                               │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│  ┌───────────────────────────────────────────────────────────────────────────┐  │
+│  │                           RAW LAYER (raw_*)                               │  │
+│  │  raw_shopee_orders │ raw_facebook_ads │ raw_google_ads │ raw_ga4_events   │  │
+│  └───────────────────────────────────────────────────────────────────────────┘  │
+│                                        │                                         │
+│                                        ▼                                         │
+│  ┌───────────────────────────────────────────────────────────────────────────┐  │
+│  │                        STAGING LAYER (stg_*)                              │  │
+│  │  stg_orders │ stg_ads_performance │ stg_ga4_sessions │ stg_ga4_traffic    │  │
+│  └───────────────────────────────────────────────────────────────────────────┘  │
+│                                        │                                         │
+│                                        ▼                                         │
+│  ┌───────────────────────────────────────────────────────────────────────────┐  │
+│  │                          MART LAYER (mart_*)                              │  │
+│  │  mart_daily_performance │ mart_shop_metrics │ mart_website_analytics      │  │
+│  │  mart_ads_summary │ mart_cross_channel_attribution │ mart_ai_recommendations│ │
+│  └───────────────────────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────────────────────┘
+                                        │
+                                        ▼
+┌─────────────────────────────────────────────────────────────────────────────────┐
+│                         VISUALIZATION (Looker Studio)                            │
+├─────────────────────────────────────────────────────────────────────────────────┤
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ │
+│  │Executive │ │  Shop    │ │   Ads    │ │ Facebook │ │  Google  │ │  TikTok  │ │
+│  │ Overview │ │Performnce│ │ Overview │ │Deep Dive │ │Deep Dive │ │Deep Dive │ │
+│  └──────────┘ └──────────┘ └──────────┘ └──────────┘ └──────────┘ └──────────┘ │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐                                        │
+│  │ Product  │ │  GA4     │ │   AI     │                                        │
+│  │Analytics │ │Analytics │ │ Insights │                                        │
+│  └──────────┘ └──────────┘ └──────────┘                                        │
+└─────────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ### 1.2 Technology Stack
 
 | Component | Technology | Reason |
 |-----------|------------|--------|
-| **ETL Scripts** | Python 3.11+ | Ecosystem, libraries for APIs |
+| **ETL - Pre-built** | Airbyte (Self-hosted/Cloud) | Pre-built connectors for Facebook, Google Ads, GA4 |
+| **ETL - Custom** | Python 3.11+ | Custom extractors for Shopee, Lazada, TikTok |
 | **Data Warehouse** | Google BigQuery | Serverless, scalable, cost-effective |
 | **Orchestration** | Cloud Scheduler + Cloud Functions | Serverless, low maintenance |
 | **Dashboard** | Google Looker Studio | Free, native BigQuery integration |
 | **Version Control** | Git + GitHub | Standard practice |
 | **Secrets Management** | Google Secret Manager | Secure API credentials |
 | **Monitoring** | Cloud Logging + Cloud Monitoring | Native GCP integration |
+
+### 1.3 Airbyte vs Python Decision Matrix
+
+| Platform | Airbyte Connector | Python Custom | Decision | Reason |
+|----------|-------------------|---------------|----------|--------|
+| Facebook Ads | ✅ Official | ❌ | **Airbyte** | Mature connector, handles pagination & rate limits |
+| Google Ads | ✅ Official | ❌ | **Airbyte** | Complex API, connector handles GAQL |
+| Google Analytics 4 | ✅ Official | ❌ | **Airbyte** | Native BigQuery export also available |
+| TikTok Ads | ❌ Community only | ✅ | **Python** | No reliable connector |
+| Shopee | ❌ None | ✅ | **Python** | No connector available |
+| Lazada | ❌ None | ✅ | **Python** | No connector available |
+| TikTok Shop | ❌ None | ✅ | **Python** | No connector available |
+| LINE Ads | ❌ None | ✅ | **Python** | No connector available |
+| Shopee Ads | ❌ None | ✅ | **Python** | No connector available |
+| Lazada Ads | ❌ None | ✅ | **Python** | No connector available |
 
 ---
 
@@ -251,6 +278,59 @@ CREATE TABLE raw.tiktok_ads (
     conversion_value FLOAT64,
     raw_json STRING
 );
+
+-- raw_ga4_events (from Airbyte or BigQuery Export)
+CREATE TABLE raw.ga4_events (
+    _ingested_at TIMESTAMP,
+    event_date DATE,
+    event_timestamp TIMESTAMP,
+    event_name STRING,
+    event_params ARRAY<STRUCT<
+        key STRING,
+        value STRUCT<
+            string_value STRING,
+            int_value INT64,
+            float_value FLOAT64,
+            double_value FLOAT64
+        >
+    >>,
+    user_pseudo_id STRING,
+    user_id STRING,
+    device STRUCT<
+        category STRING,
+        mobile_brand_name STRING,
+        mobile_model_name STRING,
+        operating_system STRING,
+        operating_system_version STRING,
+        browser STRING,
+        browser_version STRING
+    >,
+    geo STRUCT<
+        country STRING,
+        region STRING,
+        city STRING
+    >,
+    traffic_source STRUCT<
+        source STRING,
+        medium STRING,
+        campaign STRING
+    >,
+    ecommerce STRUCT<
+        transaction_id STRING,
+        total_item_quantity INT64,
+        purchase_revenue FLOAT64,
+        items ARRAY<STRUCT<
+            item_id STRING,
+            item_name STRING,
+            item_category STRING,
+            price FLOAT64,
+            quantity INT64
+        >>
+    >,
+    platform STRING,
+    stream_id STRING,
+    raw_json STRING
+);
 ```
 
 ### 2.2 Staging Layer Tables
@@ -343,6 +423,69 @@ CREATE TABLE staging.shops (
     shop_url STRING,
     is_active BOOL,
     _updated_at TIMESTAMP
+);
+
+-- stg_ga4_sessions (aggregated from GA4 events)
+CREATE TABLE staging.ga4_sessions (
+    date DATE,
+    session_id STRING,
+    user_pseudo_id STRING,
+    session_start TIMESTAMP,
+    session_end TIMESTAMP,
+    session_duration_seconds INT64,
+    pageviews INT64,
+    events_count INT64,
+    -- Traffic source
+    source STRING,
+    medium STRING,
+    campaign STRING,
+    channel_grouping STRING,  -- 'Organic Search', 'Paid Search', 'Direct', 'Social', etc.
+    -- Device
+    device_category STRING,
+    operating_system STRING,
+    browser STRING,
+    -- Geography
+    country STRING,
+    city STRING,
+    -- Engagement
+    is_engaged BOOL,
+    is_bounced BOOL,
+    -- Conversion
+    has_purchase BOOL,
+    purchase_revenue FLOAT64,
+    _ingested_at TIMESTAMP
+);
+
+-- stg_ga4_traffic (daily traffic summary)
+CREATE TABLE staging.ga4_traffic (
+    date DATE,
+    source STRING,
+    medium STRING,
+    campaign STRING,
+    channel_grouping STRING,
+    sessions INT64,
+    users INT64,
+    new_users INT64,
+    pageviews INT64,
+    avg_session_duration FLOAT64,
+    bounce_rate FLOAT64,
+    transactions INT64,
+    revenue FLOAT64,
+    _ingested_at TIMESTAMP
+);
+
+-- stg_ga4_pages (page performance)
+CREATE TABLE staging.ga4_pages (
+    date DATE,
+    page_path STRING,
+    page_title STRING,
+    pageviews INT64,
+    unique_pageviews INT64,
+    avg_time_on_page FLOAT64,
+    entrances INT64,
+    exits INT64,
+    exit_rate FLOAT64,
+    _ingested_at TIMESTAMP
 );
 ```
 
@@ -480,6 +623,78 @@ CREATE TABLE mart.ai_recommendations (
     is_acknowledged BOOL,
     acknowledged_at TIMESTAMP
 );
+
+-- mart_website_analytics (GA4 aggregated for dashboard)
+CREATE TABLE mart.website_analytics (
+    date DATE,
+    -- Traffic overview
+    sessions INT64,
+    users INT64,
+    new_users INT64,
+    returning_users INT64,
+    pageviews INT64,
+    pages_per_session FLOAT64,
+    avg_session_duration FLOAT64,
+    bounce_rate FLOAT64,
+    -- Engagement
+    engaged_sessions INT64,
+    engagement_rate FLOAT64,
+    -- Conversions
+    transactions INT64,
+    revenue FLOAT64,
+    conversion_rate FLOAT64,
+    avg_order_value FLOAT64,
+    -- Period comparisons
+    sessions_vs_yesterday FLOAT64,
+    sessions_vs_last_week FLOAT64,
+    revenue_vs_yesterday FLOAT64
+);
+
+-- mart_traffic_sources (GA4 traffic by source)
+CREATE TABLE mart.traffic_sources (
+    date DATE,
+    channel_grouping STRING,
+    source STRING,
+    medium STRING,
+    campaign STRING,
+    sessions INT64,
+    users INT64,
+    new_users INT64,
+    bounce_rate FLOAT64,
+    pages_per_session FLOAT64,
+    avg_session_duration FLOAT64,
+    transactions INT64,
+    revenue FLOAT64,
+    conversion_rate FLOAT64,
+    -- Share metrics
+    sessions_share FLOAT64,
+    revenue_share FLOAT64
+);
+
+-- mart_cross_channel_attribution (Ads → GA4 → E-commerce)
+CREATE TABLE mart.cross_channel_attribution (
+    date DATE,
+    ads_platform STRING,
+    campaign_id STRING,
+    campaign_name STRING,
+    -- Ads metrics
+    ad_spend FLOAT64,
+    ad_clicks INT64,
+    ad_impressions INT64,
+    -- GA4 metrics (matched by UTM)
+    ga_sessions INT64,
+    ga_users INT64,
+    ga_transactions INT64,
+    ga_revenue FLOAT64,
+    -- E-commerce metrics (if matched)
+    ecom_orders INT64,
+    ecom_revenue FLOAT64,
+    -- Attribution metrics
+    roas_ga FLOAT64,        -- GA revenue / Ad spend
+    roas_ecom FLOAT64,      -- E-commerce revenue / Ad spend
+    cpa_ga FLOAT64,         -- Ad spend / GA transactions
+    cpa_ecom FLOAT64        -- Ad spend / E-commerce orders
+);
 ```
 
 ### 2.4 Entity Relationship Diagram
@@ -527,9 +742,166 @@ CREATE TABLE mart.ai_recommendations (
 
 ---
 
-## 3. API Definitions & Data Extractors
+## 3. Airbyte Setup
 
-### 3.1 E-commerce Platform APIs
+### 3.1 Airbyte Deployment Options
+
+| Option | Pros | Cons | Recommended For |
+|--------|------|------|-----------------|
+| **Airbyte Cloud** | Managed, no maintenance, quick setup | Monthly cost (~$300-500+) | Production, less DevOps |
+| **Airbyte OSS (Self-hosted)** | Free, full control | Requires server maintenance | Cost-sensitive, DevOps available |
+| **Airbyte on GCP (Cloud Run)** | Balance of control & managed | Some setup required | GCP-native stack |
+
+**Recommendation:** Start with **Airbyte Cloud** for quick setup, migrate to self-hosted if cost becomes concern.
+
+### 3.2 Airbyte Connectors Configuration
+
+#### Facebook Ads Connector
+```yaml
+connector: source-facebook-marketing
+config:
+  account_id: "${FACEBOOK_ACCOUNT_ID}"
+  access_token: "${FACEBOOK_ACCESS_TOKEN}"
+  start_date: "2024-01-01"
+  end_date: ""  # Empty for ongoing sync
+  insights_lookback_window: 28
+  fetch_thumbnail_images: false
+  custom_insights:
+    - name: "daily_ads_insights"
+      fields:
+        - impressions
+        - clicks
+        - spend
+        - reach
+        - frequency
+        - cpc
+        - cpm
+        - ctr
+        - actions
+        - action_values
+        - conversions
+        - conversion_values
+      breakdowns:
+        - age
+        - gender
+      action_breakdowns:
+        - action_type
+      level: ad
+      time_increment: 1
+sync_mode: incremental
+destination_sync_mode: append_dedup
+```
+
+#### Google Ads Connector
+```yaml
+connector: source-google-ads
+config:
+  credentials:
+    developer_token: "${GOOGLE_ADS_DEVELOPER_TOKEN}"
+    client_id: "${GOOGLE_ADS_CLIENT_ID}"
+    client_secret: "${GOOGLE_ADS_CLIENT_SECRET}"
+    refresh_token: "${GOOGLE_ADS_REFRESH_TOKEN}"
+  customer_id: "${GOOGLE_ADS_CUSTOMER_ID}"
+  start_date: "2024-01-01"
+  end_date: ""
+  custom_queries:
+    - query: |
+        SELECT
+          campaign.id,
+          campaign.name,
+          campaign.advertising_channel_type,
+          ad_group.id,
+          ad_group.name,
+          segments.date,
+          metrics.impressions,
+          metrics.clicks,
+          metrics.cost_micros,
+          metrics.conversions,
+          metrics.conversions_value
+        FROM ad_group
+      table_name: ad_group_performance
+sync_mode: incremental
+destination_sync_mode: append_dedup
+```
+
+#### Google Analytics 4 Connector
+```yaml
+connector: source-google-analytics-data-api
+config:
+  credentials:
+    credentials_json: "${GA4_CREDENTIALS_JSON}"
+  property_id: "${GA4_PROPERTY_ID}"
+  date_ranges_start_date: "2024-01-01"
+  custom_reports:
+    - name: "daily_traffic"
+      dimensions:
+        - date
+        - sessionSource
+        - sessionMedium
+        - sessionCampaignName
+        - deviceCategory
+        - country
+      metrics:
+        - sessions
+        - totalUsers
+        - newUsers
+        - screenPageViews
+        - averageSessionDuration
+        - bounceRate
+        - transactions
+        - purchaseRevenue
+    - name: "page_performance"
+      dimensions:
+        - date
+        - pagePath
+        - pageTitle
+      metrics:
+        - screenPageViews
+        - averageSessionDuration
+        - bounceRate
+    - name: "ecommerce_events"
+      dimensions:
+        - date
+        - eventName
+        - transactionId
+      metrics:
+        - eventCount
+        - purchaseRevenue
+        - itemsPurchased
+sync_mode: incremental
+destination_sync_mode: append_dedup
+```
+
+### 3.3 Airbyte to BigQuery Destination
+
+```yaml
+connector: destination-bigquery
+config:
+  project_id: "${GCP_PROJECT_ID}"
+  dataset_id: "raw"
+  dataset_location: "asia-southeast1"
+  credentials_json: "${BIGQUERY_CREDENTIALS_JSON}"
+  loading_method:
+    method: "GCS Staging"
+    gcs_bucket_name: "${GCS_STAGING_BUCKET}"
+    gcs_bucket_path: "airbyte-staging"
+  transformation_priority: "interactive"
+  big_query_client_buffer_size_mb: 15
+```
+
+### 3.4 Airbyte Sync Schedule
+
+| Connection | Frequency | Time (BKK) | Duration Est. |
+|------------|-----------|------------|---------------|
+| Facebook Ads → BigQuery | Every 6 hours | 00:00, 06:00, 12:00, 18:00 | ~10-15 min |
+| Google Ads → BigQuery | Every 6 hours | 00:30, 06:30, 12:30, 18:30 | ~10-15 min |
+| GA4 → BigQuery | Every 6 hours | 01:00, 07:00, 13:00, 19:00 | ~15-20 min |
+
+---
+
+## 4. API Definitions & Data Extractors (Python)
+
+### 4.1 E-commerce Platform APIs
 
 #### Shopee API
 ```python
@@ -680,7 +1052,7 @@ class TikTokAdsExtractor:
 
 ---
 
-## 4. Project Structure
+## 5. Project Structure
 
 ```
 central-marketing-dashboard/
@@ -692,28 +1064,37 @@ central-marketing-dashboard/
 ├── .claude/
 │   └── commands/               # Claude commands
 │
+├── airbyte/                    # Airbyte configurations
+│   ├── connections/            # Connection configs
+│   │   ├── facebook_ads.yaml
+│   │   ├── google_ads.yaml
+│   │   └── ga4.yaml
+│   ├── destinations/           # Destination configs
+│   │   └── bigquery.yaml
+│   └── README.md               # Airbyte setup guide
+│
 ├── src/
 │   ├── __init__.py
 │   │
-│   ├── extractors/             # API clients for data extraction
+│   ├── extractors/             # Custom API clients (Python-based)
 │   │   ├── __init__.py
 │   │   ├── base.py             # Base extractor class
 │   │   ├── shopee.py           # Shopee API client
 │   │   ├── lazada.py           # Lazada API client
 │   │   ├── tiktok_shop.py      # TikTok Shop API client
-│   │   ├── facebook_ads.py     # Facebook Ads API client
-│   │   ├── google_ads.py       # Google Ads API client
 │   │   ├── tiktok_ads.py       # TikTok Ads API client
 │   │   ├── line_ads.py         # LINE Ads API client
 │   │   ├── shopee_ads.py       # Shopee Ads API client
 │   │   └── lazada_ads.py       # Lazada Ads API client
+│   │   # Note: Facebook Ads, Google Ads, GA4 ใช้ Airbyte แทน
 │   │
 │   ├── transformers/           # Data transformation logic
 │   │   ├── __init__.py
 │   │   ├── base.py             # Base transformer class
 │   │   ├── orders.py           # Order data transformers
 │   │   ├── products.py         # Product data transformers
-│   │   ├── ads.py              # Ads data transformers
+│   │   ├── ads.py              # Ads data transformers (unified)
+│   │   ├── ga4.py              # GA4 data transformers
 │   │   └── sku_mapper.py       # Cross-platform SKU mapping
 │   │
 │   ├── loaders/                # BigQuery loaders
